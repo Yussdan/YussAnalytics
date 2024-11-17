@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 import os
 import sys
 import io
@@ -79,39 +80,66 @@ def get_plot(crypto, time, currency, limit):
     if isinstance(data, dict):
         return jsonify(data), data.get("status", 500)
 
+    # Подготовка данных
     data['percent_change'] = data['close'].pct_change().fillna(0) * 100
     data['color'] = data['percent_change'].apply(lambda x: 'green' if x >= 0 else 'red')
 
-    plt.figure(figsize=(12, 6))
+    # Градиент цвета для линии
+    colors = ['red', 'green']
+    cmap = LinearSegmentedColormap.from_list('gradient', colors)
 
+    # Построение графика
+    plt.style.use('ggplot')
+    fig, ax = plt.subplots(figsize=(14, 8))
+
+    # Линия с градиентом цвета
     for i in range(1, len(data)):
-        plt.plot(
+        ax.plot(
             [data['time'][i - 1], data['time'][i]],
             [data['close'][i - 1], data['close'][i]],
-            color=data['color'][i],
-            linewidth=2.5
+            color=cmap(data['percent_change'][i] / max(abs(data['percent_change']))),
+            linewidth=2
         )
 
-        plt.text(
-            data['time'][i],
-            data['close'][i],
+    # Добавление маркеров и текста с процентным изменением
+    for i in range(len(data)):
+        ax.scatter(data['time'][i], data['close'][i], color=data['color'][i], edgecolor='black', zorder=5)
+        ax.text(
+            data['time'][i], data['close'][i],
             f"{data['percent_change'][i]:+.2f}%",
             color='black',
-            ha='center', va='bottom', fontsize=9,
-            bbox=dict(facecolor=data['color'][i], alpha=0.3, edgecolor='none', boxstyle='round,pad=0.3')
+            fontsize=8, ha='center', va='bottom'
         )
 
-    plt.xlabel("Time")
-    plt.ylabel("Close Price")
-    plt.title(f"Price {crypto} for {limit} {time}s")
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
+    # Заливка области под графиком
+    ax.fill_between(data['time'], data['close'], color='blue', alpha=0.1)
 
+    # Добавление заголовка и подписей
+    ax.set_title(f"Price Trend for {crypto} ({limit} {time}s)", fontsize=16, fontweight='bold')
+    ax.set_xlabel("Time", fontsize=12)
+    ax.set_ylabel("Close Price", fontsize=12)
+
+    min_close = data['close'].min()
+    max_close = data['close'].max()
+    padding = (max_close - min_close) * 0.05  # 5% от диапазона
+    ax.set_ylim(min_close - padding, max_close + padding)
+
+    # Автоматическое масштабирование оси времени
+    ax.set_xlim(data['time'].iloc[0], data['time'].iloc[-1])
+
+    # Настройка осей
+    plt.xticks(rotation=45, ha='right', fontsize=10)
+    plt.yticks(fontsize=10)
+
+    # Добавление сетки
+    ax.grid(color='gray', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    # Сохранение графика
     buffer = io.BytesIO()
+    plt.tight_layout()
     plt.savefig(buffer, format='png')
     buffer.seek(0)
     plt.close()
-
     try:
         resp=S3Client().upload_image(bucket='bucket-2490b3', local_file=buffer, bucket_file=f'{crypto}/{time}.png')
         return jsonify({'answer': resp}), 200

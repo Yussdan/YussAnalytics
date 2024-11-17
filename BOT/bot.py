@@ -1,10 +1,9 @@
 from dotenv import load_dotenv
 import os
 import sys
-import httpx
 from io import BytesIO
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputFile
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -14,7 +13,7 @@ from utils.s3_client import S3Client, make_request
 load_dotenv()
 
 bot = os.getenv("bot")
-curr = ['BTC', 'ETH', 'USDT', 'TON']
+curr = ['BTC', 'ETH', 'TON']
 
 
 def get_time_buttons(cripto):
