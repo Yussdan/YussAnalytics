@@ -1,89 +1,163 @@
-import requests
 from dotenv import load_dotenv
 import os
-from PIL import Image
+import sys
+import httpx
 from io import BytesIO
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputFile
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from utils.s3_client import S3Client, make_request
+
+
 load_dotenv()
 
 bot = os.getenv("bot")
-curr = ['BTC', 'ETH', 'USDT']
+curr = ['BTC', 'ETH', 'USDT', 'TON']
 
 
-def make_request(url):
-    response = requests.get(url)
-    return response.json() if response.status_code == 200 else f"Ошибка при получении данных. Попробуйте позже."
+def get_time_buttons(cripto):
+    return [
+        [InlineKeyboardButton("10 дней", callback_data=f'{cripto}_day')],
+        [InlineKeyboardButton("10 часов", callback_data=f'{cripto}_hour')],
+        [InlineKeyboardButton("Назад", callback_data='back')],
+        [InlineKeyboardButton("Главное меню", callback_data='start')],
+    ]
 
-
+def get_main_menu_buttons():
+    return [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
+    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE, message=None):
     reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]])
-    
+
     if message:
-        await message.edit_text(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
-            reply_markup=reply_markup
-        )
-    else:
+        if message.text:
+            await message.edit_text(
+                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
+                reply_markup=reply_markup
+            )
+        else:
+            await message.reply_text(
+                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
+                reply_markup=reply_markup
+            )
+    elif update.message:
         await update.message.reply_text(
             "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
             reply_markup=reply_markup
         )
+    else:
+        print("Ошибка: Нет доступного сообщения для отправки.")
+
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     ans = query.data
 
-    if ans in [f'{cur}_{time}' for cur in curr for time in ['latest', 'history', 'day', 'hour']]:
-        cripto, action = ans.split('_')
-        
-        if action == 'history':
-            await query.edit_message_text(
-                text=f"Вы выбрали {cripto}. Выберите период для анализа:",
-                reply_markup=InlineKeyboardMarkup(
-                    [
-                        [InlineKeyboardButton("Статистика по цене за прошедние 10 дней", callback_data=f'{cripto}_day')],
-                        [InlineKeyboardButton("Статистика по цене за последние 10 часов", callback_data=f'{cripto}_hour')],
-                        [InlineKeyboardButton("Назад", callback_data='back')]
-                    ]
-                )
-            )
+    if "start" in ans:
+        if 'callback' in ans:
+            await start(update, context, message=None)
+        else:
+            await start(update, context, message=query.message)
+        return
 
-        if action in ['day', 'hour']:
-                stats = make_request(f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
-                await query.edit_message_text(
-                    text="\n".join([
-                    "Статистика стоимости :",
-                    f"Средняя стоимость за данный период : {stats['average']}",
-                    f"Максимальная стоимость за данный период : {stats['max']}",
-                    f"Медианная стоимость за данный период : {stats['median']}",
-                    f"Минимальная стоимость за данный период : {stats['min']}"]))
+    if ans == "back":
+        await query.edit_message_text(
+            text="Выберите криптовалюту:",
+            reply_markup=InlineKeyboardMarkup(get_main_menu_buttons())
+        )
+        return
 
-                image_file = BytesIO()
-                Image.open(BytesIO(requests.get(f'http://127.0.0.1:5000/{cripto}/plot/USD/{action}/10').content)).save(image_file, format="PNG")
-                image_file.seek(0) 
-                await query.message.reply_photo(photo=InputFile(image_file, filename="crypto_plot.png"))
-
-        if action == 'latest':
-            await query.edit_message_text(text=make_request(f'http://127.0.0.1:5000/{cripto}/latest/USD')[cripto])
-
-    elif ans in curr:
+    if ans in curr:
         await query.edit_message_text(
             text=f"Вы выбрали {ans}. Выберите действие:",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [InlineKeyboardButton("Показать текущий курс", callback_data=f'{ans}_latest')],
-                    [InlineKeyboardButton("Статистику", callback_data=f'{ans}_history')],
-                    [InlineKeyboardButton("Назад", callback_data='back')]
+                    [InlineKeyboardButton("Статистика", callback_data=f'{ans}_history')],
+                    [InlineKeyboardButton("Назад", callback_data='back')],
+                    [InlineKeyboardButton("Главное меню", callback_data='start')],
+                ]
+            )
+        )
+        return
+    if 'callback' in ans:
+        await query.message.edit_reply_markup(reply_markup=None)
+        ans=ans.replace('_callback','')
+        await query.message.reply_text(
+            text=f"Вы выбрали {ans}. Выберите действие:",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [InlineKeyboardButton("Показать текущий курс", callback_data=f'{ans}_latest')],
+                    [InlineKeyboardButton("Статистика", callback_data=f'{ans}_history')],
+                    [InlineKeyboardButton("Назад", callback_data='back')],
+                    [InlineKeyboardButton("Главное меню", callback_data='start')],
                 ]
             )
         )
 
-    else:
-        await start(update, context, message=query.message)
+    if "_" in ans:
+        cripto, action = ans.split("_")
+
+        if action == "history":
+            await query.edit_message_text(
+                text=f"Вы выбрали {cripto}. Выберите период для анализа:",
+                reply_markup=InlineKeyboardMarkup(get_time_buttons(cripto))
+            )
+            return
+
+        if action in ["day", "hour"]:
+            try:
+                await query.message.edit_reply_markup(reply_markup=None)
+                stats = make_request(url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
+                if not stats or 'error' in stats:
+                    raise ValueError("Ошибка при запросе данных")
+                
+                make_request(url=f'http://127.0.0.1:5000/{cripto}/plot/USD/{action}/10')
+                data = S3Client().download_image(bucket='bucket-2490b3', bucket_file=f'{cripto}/{action}.png')
+                if not data:
+                    query.edit_message_text("Ошибка загрузке изображения, попробуйте попозже")
+
+                buffer = BytesIO(data)
+                buffer.seek(0)
+                await query.message.reply_photo(
+                    photo=buffer, 
+                    filename=f"{cripto}_{action}.png",
+                    caption="\n".join([
+                        f"Статистика {cripto} за 10 {'дней' if action == 'day' else 'часов'}:",
+                        f"Средняя стоимость: {stats['average']}",
+                        f"Максимальная стоимость: {stats['max']}",
+                        f"Медианная стоимость: {stats['median']}",
+                        f"Минимальная стоимость: {stats['min']}"
+                    ]),
+                    reply_markup=InlineKeyboardMarkup([
+                       [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
+                        [InlineKeyboardButton("Главное меню", callback_data='start')],
+                    ])
+                )
+                return
+            except Exception as e:
+                await query.edit_message_text(f"Ошибка: {e}")
+                return
+
+        if action == "latest":
+            try:
+                latest = make_request(url=f'http://127.0.0.1:5000/{cripto}/latest/USD')
+                if not latest or 'error' in latest:
+                    raise ValueError("Ошибка при запросе данных")
+                
+                await query.edit_message_text(
+                    text=f"Текущий курс {cripto}: {latest[cripto]}",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
+                        [InlineKeyboardButton("Главное меню", callback_data='start')],
+                    ])
+                )
+                
+            except Exception as e:
+                await query.edit_message_text(f"Ошибка: {e}")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Вот что я умею:\n/start - Запустить бота\n/help - Показать справку")
