@@ -1,14 +1,12 @@
 import os
-import sys
 from io import BytesIO
 import requests
 from dotenv import load_dotenv
 
+from utils.s3_client import S3Client, make_request
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
+from telegram.ext import ApplicationBuilder, CommandHandler , CallbackQueryHandler
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from ..utils.s3_client import S3Client, make_request
 
 
 load_dotenv()
@@ -29,6 +27,9 @@ def get_main_menu_buttons():
     return [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
 
 async def start(update: Update, message=None):
+    """
+    Handles the /start command. Greets the user and displays cryptocurrency options.
+    """
     reply_markup = InlineKeyboardMarkup(
         [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]])
 
@@ -53,6 +54,7 @@ async def start(update: Update, message=None):
 
 
 async def button_handler(update: Update):
+    # logic button
     query = update.callback_query
     await query.answer()
     ans = query.data
@@ -164,6 +166,7 @@ async def button_handler(update: Update):
             except requests.HTTPError as ve:
                 await query.message.reply_text(f"Ошибка {ve}")
 async def help_command(update: Update):
+    # Handle start action logic
     await update.message.reply_text(
         "Вот что я умею:\n/start - Запустить бота\n/help - Показать справку")
 
