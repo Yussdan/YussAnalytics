@@ -56,6 +56,9 @@ async def handle_back(query):
     )
 
 async def cripto_value(action, query, cripto):
+    """
+    get data 
+    """
     if action == "history":
         await query.edit_message_text(
             text=f"Вы выбрали {cripto}. Выберите период для анализа:",
@@ -63,7 +66,7 @@ async def cripto_value(action, query, cripto):
         )
         return
 
-    elif action in ["day", "hour"]:
+    if action in ["day", "hour"]:
         try:
             await query.message.edit_reply_markup(reply_markup=None)
             stats = make_request(
@@ -99,7 +102,7 @@ async def cripto_value(action, query, cripto):
         except FileNotFoundError as fe:
             await query.message.reply_text(f"Ошибка при работе с файлами: {fe}")
 
-    else:
+    if action == 'latest':
         try:
             latest = make_request(url=f'http://127.0.0.1:5000/{cripto}/latest/USD')
             if not latest or 'error' in latest:
