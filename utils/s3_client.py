@@ -66,7 +66,7 @@ class S3Client:
 
     def download_image(self, bucket: str, bucket_file: str):
         """
-        Downloads a file from S3.
+        Downloads a file from S3
         :param bucket: The name of the bucket.
         :param bucket_file: The name of the file in the bucket.
         :param local_file: The local path to save the file.
