@@ -1,6 +1,7 @@
 import os
 import sys
 from io import BytesIO
+import requests
 from dotenv import load_dotenv
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -51,16 +52,16 @@ async def start(update: Update, message=None):
         print("Ошибка: Нет доступного сообщения для отправки.")
 
 
-async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def button_handler(update: Update):
     query = update.callback_query
     await query.answer()
     ans = query.data
 
     if "start" in ans:
         if 'callback' in ans:
-            await start(update, context, None)
+            await start(update, None)
         else:
-            await start(update, context, query.message)
+            await start(update, query.message)
         return
 
     if ans == "back":
@@ -143,8 +144,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.message.reply_text(f"Ошибка в данных: {ve}")
         except FileNotFoundError as fe:
             await query.message.reply_text(f"Ошибка при работе с файлами: {fe}")
-        except Exception as e:
-            await query.message.reply_text(f"Неизвестная ошибка: {e}")
 
 
         if action == "latest":
@@ -162,9 +161,8 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
 
-            except Exception as e:
-                await query.edit_message_text(f"Ошибка: {e}")
-
+            except requests.HTTPError as ve:
+                await query.message.reply_text(f"Ошибка {ve}")
 async def help_command(update: Update):
     await update.message.reply_text(
         "Вот что я умею:\n/start - Запустить бота\n/help - Показать справку")
