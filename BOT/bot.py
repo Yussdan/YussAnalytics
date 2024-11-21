@@ -1,11 +1,16 @@
+"""
+This module contains the implementation of the Telegram bot for cryptocurrency analytics.
+It handles user interaction, fetches data, and displays it in various formats.
+"""
+
 import os
 from io import BytesIO
 import requests
 from dotenv import load_dotenv
 
-from utils.s3_client import S3Client, make_request
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler , CallbackQueryHandler
+from utils.s3_client import S3Client, make_request
 
 
 
@@ -16,6 +21,9 @@ curr = ['BTC', 'ETH', 'TON']
 
 
 def get_time_buttons(cripto):
+    """
+    return button with cripto
+    """
     return [
         [InlineKeyboardButton("10 дней", callback_data=f'{cripto}_day')],
         [InlineKeyboardButton("10 часов", callback_data=f'{cripto}_hour')],
@@ -24,6 +32,9 @@ def get_time_buttons(cripto):
     ]
 
 def get_main_menu_buttons():
+    """
+    return callback
+    """
     return [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
 
 async def start(update: Update, message=None):
@@ -54,7 +65,9 @@ async def start(update: Update, message=None):
 
 
 async def button_handler(update: Update):
-    # logic button
+    """
+    button logic
+    """
     query = update.callback_query
     await query.answer()
     ans = query.data
@@ -166,11 +179,16 @@ async def button_handler(update: Update):
             except requests.HTTPError as ve:
                 await query.message.reply_text(f"Ошибка {ve}")
 async def help_command(update: Update):
-    # Handle start action logic
+    """
+    /help logic
+    """
     await update.message.reply_text(
         "Вот что я умею:\n/start - Запустить бота\n/help - Показать справку")
 
 def main():
+    """
+    endpoint
+    """
     app = ApplicationBuilder().token(bot).build()
 
     app.add_handler(CommandHandler("start", start))
