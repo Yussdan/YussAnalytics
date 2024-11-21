@@ -1,3 +1,6 @@
+"""
+module to connect S3 and back-end
+"""
 import logging
 import os
 import requests
@@ -10,6 +13,9 @@ logger = logging.getLogger('api')
 
 
 class S3Client:
+    """
+    class connect to S3
+    """
     def __init__(self,
                 aws_access_key_id=None,
                 aws_secret_access_key=None,
@@ -28,7 +34,8 @@ class S3Client:
         self.region = region or "ru-central-1"
 
         if not self.aws_access_key_id or not self.aws_secret_access_key:
-            raise ValueError("AWS keys must be specified either explicitly or through environment variables.")
+            raise ValueError(
+                "AWS keys must be specified either explicitly or through environment variables.")
 
         self.s3 = None
 
@@ -54,11 +61,8 @@ class S3Client:
         : param bucket_file:file name in bucket-E.
         """
         self._ensure_session()
-        try:
-            self.s3.upload_fileobj(local_file, bucket, bucket_file)
-            return f"File {local_file} successfully uploaded to {bucket}/{bucket_file}."
-        except Exception as e:
-            raise Exception(f"Error uploading the file:{e}")
+        self.s3.upload_fileobj(local_file, bucket, bucket_file)
+        return f"File {local_file} successfully uploaded to {bucket}/{bucket_file}."
 
     def download_image(self, bucket: str, bucket_file: str):
         """
@@ -68,18 +72,17 @@ class S3Client:
         :param local_file: The local path to save the file.
         """
         self._ensure_session()
-        try:
-            return self.s3.get_object(Bucket=bucket, Key=bucket_file)['Body'].read()
-        except Exception as e:
-            raise Exception(f"Error downloading the file: {e}")
+        return self.s3.get_object(Bucket=bucket, Key=bucket_file)['Body'].read()
 
 
 def make_request(endpoint='', params=None, url='https://min-api.cryptocompare.com/data/'):
+    """
+    request to url + endpoint
+    """
     try:
-        response = requests.get(url + endpoint, params=params)
+        response = requests.get(url + endpoint, params=params, timeout=100)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
         logger.error(f"Request error: {e}")
         return {"error": str(e)}
-
