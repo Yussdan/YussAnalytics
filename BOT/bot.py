@@ -1,7 +1,7 @@
-from dotenv import load_dotenv
 import os
 import sys
 from io import BytesIO
+from dotenv import load_dotenv
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
@@ -26,20 +26,21 @@ def get_time_buttons(cripto):
 
 def get_main_menu_buttons():
     return [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
-    
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE, message=None):
-    reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]])
+
+async def start(update: Update, message=None):
+    reply_markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]])
 
     if message:
         if message.text:
             await message.edit_text(
-                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
-                reply_markup=reply_markup
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
+            reply_markup=reply_markup
             )
         else:
             await message.reply_text(
-                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
-                reply_markup=reply_markup
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
+            reply_markup=reply_markup
             )
     elif update.message:
         await update.message.reply_text(
@@ -96,6 +97,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ]
             )
         )
+        return
 
     if "_" in ans:
         cripto, action = ans.split("_")
@@ -107,39 +109,42 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        if action in ["day", "hour"]:
-            try:
-                await query.message.edit_reply_markup(reply_markup=None)
-                stats = make_request(url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
-                if not stats or 'error' in stats:
-                    raise ValueError("Ошибка при запросе данных")
-                
-                make_request(url=f'http://127.0.0.1:5000/{cripto}/plot/USD/{action}/10')
-                data = S3Client().download_image(bucket='bucket-2490b3', bucket_file=f'{cripto}/{action}.png')
-                if not data:
-                    query.edit_message_text("Ошибка загрузке изображения, попробуйте попозже")
+    if action in ["day", "hour"]:
+        try:
+            await query.message.edit_reply_markup(reply_markup=None)
+            stats = make_request(url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
+            if not stats or 'error' in stats:
+                raise ValueError("Ошибка при запросе аналитики данных")
+            
+            make_request(url=f'http://127.0.0.1:5000/{cripto}/plot/USD/{action}/10')
+            data = S3Client().download_image(bucket='bucket-2490b3', bucket_file=f'{cripto}/{action}.png')
+            if not data:
+                raise FileNotFoundError("Ошибка при загрузке изображения")
 
-                buffer = BytesIO(data)
-                buffer.seek(0)
-                await query.message.reply_photo(
-                    photo=buffer, 
-                    filename=f"{cripto}_{action}.png",
-                    caption="\n".join([
-                        f"Статистика {cripto} за 10 {'дней' if action == 'day' else 'часов'}:",
-                        f"Средняя стоимость: {stats['average']}",
-                        f"Максимальная стоимость: {stats['max']}",
-                        f"Медианная стоимость: {stats['median']}",
-                        f"Минимальная стоимость: {stats['min']}"
-                    ]),
-                    reply_markup=InlineKeyboardMarkup([
-                       [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
-                        [InlineKeyboardButton("Главное меню", callback_data='start')],
-                    ])
-                )
-                return
-            except Exception as e:
-                await query.edit_message_text(f"Ошибка: {e}")
-                return
+            buffer = BytesIO(data)
+            buffer.seek(0)
+            await query.message.reply_photo(
+                photo=buffer,
+                filename=f"{cripto}_{action}.png",
+                caption="\n".join([
+                    f"Статистика {cripto} за 10 {'дней' if action == 'day' else 'часов'}:",
+                    f"Средняя стоимость: {stats.get('average', 'N/A')}",
+                    f"Максимальная стоимость: {stats.get('max', 'N/A')}",
+                    f"Медианная стоимость: {stats.get('median', 'N/A')}",
+                    f"Минимальная стоимость: {stats.get('min', 'N/A')}"
+                ]),
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
+                    [InlineKeyboardButton("Главное меню", callback_data='start')],
+                ])
+            )
+        except ValueError as ve:
+            await query.message.reply_text(f"Ошибка в данных: {ve}")
+        except FileNotFoundError as fe:
+            await query.message.reply_text(f"Ошибка при работе с файлами: {fe}")
+        except Exception as e:
+            await query.message.reply_text(f"Неизвестная ошибка: {e}")
+
 
         if action == "latest":
             try:
@@ -154,6 +159,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         [InlineKeyboardButton("Главное меню", callback_data='start')],
                     ])
                 )
+                return
                 
             except Exception as e:
                 await query.edit_message_text(f"Ошибка: {e}")
