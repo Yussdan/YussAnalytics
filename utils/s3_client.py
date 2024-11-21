@@ -1,6 +1,6 @@
-import requests
 import logging
 import os
+import requests
 import boto3
 from dotenv import load_dotenv
 
@@ -10,11 +10,15 @@ logger = logging.getLogger('api')
 
 
 class S3Client:
-    def __init__(self, aws_access_key_id=None, aws_secret_access_key=None, endpoint_url=None, region=None):
+    def __init__(self,
+                aws_access_key_id=None,
+                aws_secret_access_key=None,
+                endpoint_url=None,
+                region=None):
         """
         S3 client initialization.
-        ::param aws_access_key_id: JAWS access key (by default, it is taken from the environment variable 's3_key_id').
-        :param aws_secret_access_key: AWS secret key (by default from the environment variable 's3_key_pass').
+        ::param aws_access_key_id: JAWS access key
+        :param aws_secret_access_key: AWS secret key
         :param endpoint_url: S3 storage URL (optional).
         :param region: S3 region (optional).
         """
@@ -22,7 +26,7 @@ class S3Client:
         self.aws_secret_access_key = aws_secret_access_key or os.getenv('s3_key_pass')
         self.endpoint_url = endpoint_url or "https://s3.cloud.ru/"
         self.region = region or "ru-central-1"
-        
+
         if not self.aws_access_key_id or not self.aws_secret_access_key:
             raise ValueError("AWS keys must be specified either explicitly or through environment variables.")
 
@@ -52,7 +56,7 @@ class S3Client:
         self._ensure_session()
         try:
             self.s3.upload_fileobj(local_file, bucket, bucket_file)
-            return(f"File {local_file} successfully uploaded to {bucket}/{bucket_file}.")
+            return f"File {local_file} successfully uploaded to {bucket}/{bucket_file}."
         except Exception as e:
             raise Exception(f"Error uploading the file:{e}")
 
@@ -68,7 +72,7 @@ class S3Client:
             return self.s3.get_object(Bucket=bucket, Key=bucket_file)['Body'].read()
         except Exception as e:
             raise Exception(f"Error downloading the file: {e}")
-            
+
 
 def make_request(endpoint='', params=None, url='https://min-api.cryptocompare.com/data/'):
     try:
@@ -78,4 +82,4 @@ def make_request(endpoint='', params=None, url='https://min-api.cryptocompare.co
     except requests.exceptions.RequestException as e:
         logger.error(f"Request error: {e}")
         return {"error": str(e)}
-    
+

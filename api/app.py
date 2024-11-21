@@ -4,13 +4,13 @@ api cripto
 
 import os
 import io
+from datetime import datetime
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 
 from flask import Flask, jsonify
 from dotenv import load_dotenv
-from datetime import datetime
 from utils.s3_client import S3Client, make_request
 
 matplotlib.use('Agg')
@@ -111,7 +111,7 @@ def get_plot(crypto, time, currency, limit):
             f"{data['percent_change'][i]:+.2f}%",
             color='black',
             ha='center', va='bottom', fontsize=9,
-            bbox={'facecolor':data['color'][i], 
+            bbox={'facecolor':data['color'][i],
                       'alpha':0.3, 'edgecolor':None, 'boxstyle':round,'pad':0.3}
         )
 
@@ -126,11 +126,11 @@ def get_plot(crypto, time, currency, limit):
     buffer.seek(0)
     plt.close()
 
-    try:
-        resp=S3Client().upload_image(bucket='bucket-2490b3', local_file=buffer, bucket_file=f'{crypto}/{time}.png')
-        return jsonify({'answer': resp}), 200
-    except Exception as e:
-        return jsonify({'answer': e}), 500
+
+    resp=S3Client().upload_image(
+        bucket='bucket-2490b3', local_file=buffer, bucket_file=f'{crypto}/{time}.png')
+    return jsonify({'answer': resp}), 200
+
 
 
 @app.errorhandler(404)
