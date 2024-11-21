@@ -1,19 +1,19 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
+"""
+api cripto
+"""
+
 import os
-import sys
 import io
+import pandas as pd
+import matplotlib
+import matplotlib.pyplot as plt
 
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 from datetime import datetime
-
-import matplotlib
-matplotlib.use('Agg')
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.s3_client import S3Client, make_request
+
+matplotlib.use('Agg')
 
 load_dotenv()
 
@@ -21,11 +21,13 @@ api_key = os.getenv("api_key")
 s3_key_id = os.getenv('s3_key_id')
 s3_key_pass = os.getenv('s3_key_pass')
 
-
 app = Flask(__name__)
 
 @app.route("/<cryptocurrency>/latest/<current>", methods=["GET"])
 def get_latest_prices(cryptocurrency, current):
+    """
+    return last prices
+    """
     params = {'fsym': cryptocurrency, 'tsyms': current, 'api_key': api_key}
     data = make_request(endpoint='price', params=params)
     if "error" in data:
@@ -35,6 +37,9 @@ def get_latest_prices(cryptocurrency, current):
 
 @app.route("/<cryptocurrency>/<time>/<current>/<limit>", methods=["GET"])
 def fetch_history_prices(cryptocurrency, time, current, limit):
+    """
+    return history data
+    """
     if time not in ['hour', 'day']:
         return {"error": "Invalid time parameter. Use 'hour' or 'day'."}, 400
 
@@ -46,7 +51,8 @@ def fetch_history_prices(cryptocurrency, time, current, limit):
 
     prices = pd.DataFrame([
         {
-            "time": datetime.fromtimestamp(info['time']).strftime('%H:%M' if time == 'hour' else '%Y-%m-%d'),
+            "time": datetime.fromtimestamp(info['time']).strftime(
+                '%H:%M' if time == 'hour' else '%Y-%m-%d'),
             "high": info['high'],
             "low": info['low'],
             "close": info['close']
@@ -63,6 +69,9 @@ def fetch_history_prices(cryptocurrency, time, current, limit):
 
 @app.route("/<crypto>/analytics/<currency>/<time>/<limit>", methods=["GET"])
 def get_analytics(crypto, time, currency, limit):
+    """
+    return data
+    """
     data = fetch_history_prices(crypto, time, currency, limit)
     if isinstance(data, dict):
         return jsonify(data), data.get("status", 500)
@@ -76,6 +85,9 @@ def get_analytics(crypto, time, currency, limit):
 
 @app.route("/<crypto>/plot/<currency>/<time>/<limit>", methods=["GET"])
 def get_plot(crypto, time, currency, limit):
+    """
+    return plot
+    """
     data = fetch_history_prices(crypto, time, currency, limit)
     if isinstance(data, dict):
         return jsonify(data), data.get("status", 500)
@@ -99,7 +111,8 @@ def get_plot(crypto, time, currency, limit):
             f"{data['percent_change'][i]:+.2f}%",
             color='black',
             ha='center', va='bottom', fontsize=9,
-            bbox=dict(facecolor=data['color'][i], alpha=0.3, edgecolor='none', boxstyle='round,pad=0.3')
+            bbox={'facecolor':data['color'][i], 
+                      'alpha':0.3, 'edgecolor':None, 'boxstyle':round,'pad':0.3}
         )
 
     plt.xlabel("Time")
@@ -121,7 +134,10 @@ def get_plot(crypto, time, currency, limit):
 
 
 @app.errorhandler(404)
-def not_found(error):
+def not_found():
+    """
+    return error
+    """
     return jsonify({"error": "Resource not found"}), 404
 
 
