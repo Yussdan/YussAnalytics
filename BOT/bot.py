@@ -99,6 +99,7 @@ async def button_handler(update: Update):
             )
         )
         return
+
     elif 'callback' in ans:
         await query.message.edit_reply_markup(reply_markup=None)
         ans=ans.replace('_callback','')
@@ -125,65 +126,65 @@ async def button_handler(update: Update):
             )
             return
 
-    elif action in ["day", "hour"]:
-        try:
-            await query.message.edit_reply_markup(reply_markup=None)
-            stats = make_request(url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
-            if not stats or 'error' in stats:
-                raise ValueError("Ошибка при запросе аналитики данных")
+        elif action in ["day", "hour"]:
+            try:
+                await query.message.edit_reply_markup(reply_markup=None)
+                stats = make_request(url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
+                if not stats or 'error' in stats:
+                    raise ValueError("Ошибка при запросе аналитики данных")
 
-            make_request(url=f'http://127.0.0.1:5000/{cripto}/plot/USD/{action}/10')
-            data = S3Client().download_image(
-                bucket='bucket-2490b3', bucket_file=f'{cripto}/{action}.png')
-            if not data:
-                raise FileNotFoundError("Ошибка при загрузке изображения")
+                make_request(url=f'http://127.0.0.1:5000/{cripto}/plot/USD/{action}/10')
+                data = S3Client().download_image(
+                    bucket='bucket-2490b3', bucket_file=f'{cripto}/{action}.png')
+                if not data:
+                    raise FileNotFoundError("Ошибка при загрузке изображения")
 
-            buffer = BytesIO(data)
-            buffer.seek(0)
-            await query.message.reply_photo(
-                photo=buffer,
-                filename=f"{cripto}_{action}.png",
-                caption="\n".join([
-                    f"Статистика {cripto} за 10 {'дней' if action == 'day' else 'часов'}:",
-                    f"Средняя стоимость: {stats.get('average', 'N/A')}",
-                    f"Максимальная стоимость: {stats.get('max', 'N/A')}",
-                    f"Медианная стоимость: {stats.get('median', 'N/A')}",
-                    f"Минимальная стоимость: {stats.get('min', 'N/A')}"
-                ]),
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
-                    [InlineKeyboardButton("Главное меню", callback_data='start')],
-                ])
-            )
-        except ValueError as ve:
-            await query.message.reply_text(f"Ошибка в данных: {ve}")
-        except FileNotFoundError as fe:
-            await query.message.reply_text(f"Ошибка при работе с файлами: {fe}")
+                buffer = BytesIO(data)
+                buffer.seek(0)
+                await query.message.reply_photo(
+                    photo=buffer,
+                    filename=f"{cripto}_{action}.png",
+                    caption="\n".join([
+                        f"Статистика {cripto} за 10 {'дней' if action == 'day' else 'часов'}:",
+                        f"Средняя стоимость: {stats.get('average', 'N/A')}",
+                        f"Максимальная стоимость: {stats.get('max', 'N/A')}",
+                        f"Медианная стоимость: {stats.get('median', 'N/A')}",
+                        f"Минимальная стоимость: {stats.get('min', 'N/A')}"
+                    ]),
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
+                        [InlineKeyboardButton("Главное меню", callback_data='start')],
+                    ])
+                )
+            except ValueError as ve:
+                await query.message.reply_text(f"Ошибка в данных: {ve}")
+            except FileNotFoundError as fe:
+                await query.message.reply_text(f"Ошибка при работе с файлами: {fe}")
 
 
-    elif action == "latest":
-        try:
-            latest = make_request(url=f'http://127.0.0.1:5000/{cripto}/latest/USD')
-            if not latest or 'error' in latest:
-                raise ValueError("Ошибка при запросе данных")
+        else:
+            try:
+                latest = make_request(url=f'http://127.0.0.1:5000/{cripto}/latest/USD')
+                if not latest or 'error' in latest:
+                    raise ValueError("Ошибка при запросе данных")
 
-            await query.edit_message_text(
-                text=f"Текущий курс {cripto}: {latest[cripto]}",
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
-                    [InlineKeyboardButton("Главное меню", callback_data='start')],
-                ])
-            )
-            return
+                await query.edit_message_text(
+                    text=f"Текущий курс {cripto}: {latest[cripto]}",
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
+                        [InlineKeyboardButton("Главное меню", callback_data='start')],
+                    ])
+                )
+                return
 
-        except requests.HTTPError as ve:
-            await query.message.reply_text(f"Ошибка {ve}")
+            except requests.HTTPError as ve:
+                await query.message.reply_text(f"Ошибка {ve}")
     else:
-        # Обработка случая с неизвестным запросом
         await query.edit_message_text(
             text="Неизвестная команда. Попробуйте снова.",
             reply_markup=InlineKeyboardMarkup(get_main_menu_buttons())
         )
+        return
 async def help_command(update: Update):
     """
     /help logic
