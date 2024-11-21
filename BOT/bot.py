@@ -79,14 +79,14 @@ async def button_handler(update: Update):
             await start(update, query.message)
         return
 
-    if ans == "back":
+    elif ans == "back":
         await query.edit_message_text(
             text="Выберите криптовалюту:",
             reply_markup=InlineKeyboardMarkup(get_main_menu_buttons())
         )
         return
 
-    if ans in curr:
+    elif ans in curr:
         await query.edit_message_text(
             text=f"Вы выбрали {ans}. Выберите действие:",
             reply_markup=InlineKeyboardMarkup(
@@ -99,7 +99,7 @@ async def button_handler(update: Update):
             )
         )
         return
-    if 'callback' in ans:
+    elif 'callback' in ans:
         await query.message.edit_reply_markup(reply_markup=None)
         ans=ans.replace('_callback','')
         await query.message.reply_text(
@@ -115,7 +115,7 @@ async def button_handler(update: Update):
         )
         return
 
-    if "_" in ans:
+    elif "_" in ans:
         cripto, action = ans.split("_")
 
         if action == "history":
@@ -125,7 +125,7 @@ async def button_handler(update: Update):
             )
             return
 
-    if action in ["day", "hour"]:
+    elif action in ["day", "hour"]:
         try:
             await query.message.edit_reply_markup(reply_markup=None)
             stats = make_request(url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
@@ -161,23 +161,29 @@ async def button_handler(update: Update):
             await query.message.reply_text(f"Ошибка при работе с файлами: {fe}")
 
 
-        if action == "latest":
-            try:
-                latest = make_request(url=f'http://127.0.0.1:5000/{cripto}/latest/USD')
-                if not latest or 'error' in latest:
-                    raise ValueError("Ошибка при запросе данных")
+    elif action == "latest":
+        try:
+            latest = make_request(url=f'http://127.0.0.1:5000/{cripto}/latest/USD')
+            if not latest or 'error' in latest:
+                raise ValueError("Ошибка при запросе данных")
 
-                await query.edit_message_text(
-                    text=f"Текущий курс {cripto}: {latest[cripto]}",
-                    reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
-                        [InlineKeyboardButton("Главное меню", callback_data='start')],
-                    ])
-                )
-                return
+            await query.edit_message_text(
+                text=f"Текущий курс {cripto}: {latest[cripto]}",
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
+                    [InlineKeyboardButton("Главное меню", callback_data='start')],
+                ])
+            )
+            return
 
-            except requests.HTTPError as ve:
-                await query.message.reply_text(f"Ошибка {ve}")
+        except requests.HTTPError as ve:
+            await query.message.reply_text(f"Ошибка {ve}")
+    else:
+        # Обработка случая с неизвестным запросом
+        await query.edit_message_text(
+            text="Неизвестная команда. Попробуйте снова.",
+            reply_markup=InlineKeyboardMarkup(get_main_menu_buttons())
+        )
 async def help_command(update: Update):
     """
     /help logic
