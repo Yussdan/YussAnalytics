@@ -7,7 +7,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, CallbackQueryHandler
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils.s3_client import S3Client, make_request
+from ..utils.s3_client import S3Client, make_request
 
 
 load_dotenv()
@@ -34,17 +34,17 @@ async def start(update: Update, message=None):
     if message:
         if message.text:
             await message.edit_text(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
             reply_markup=reply_markup
             )
         else:
             await message.reply_text(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
             reply_markup=reply_markup
             )
     elif update.message:
         await update.message.reply_text(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют или нажмите /help.",
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
             reply_markup=reply_markup
         )
     else:
@@ -58,9 +58,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if "start" in ans:
         if 'callback' in ans:
-            await start(update, context, message=None)
+            await start(update, context, None)
         else:
-            await start(update, context, message=query.message)
+            await start(update, context, query.message)
         return
 
     if ans == "back":
@@ -115,9 +115,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             stats = make_request(url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
             if not stats or 'error' in stats:
                 raise ValueError("Ошибка при запросе аналитики данных")
-            
+
             make_request(url=f'http://127.0.0.1:5000/{cripto}/plot/USD/{action}/10')
-            data = S3Client().download_image(bucket='bucket-2490b3', bucket_file=f'{cripto}/{action}.png')
+            data = S3Client().download_image(
+                bucket='bucket-2490b3', bucket_file=f'{cripto}/{action}.png')
             if not data:
                 raise FileNotFoundError("Ошибка при загрузке изображения")
 
@@ -151,7 +152,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 latest = make_request(url=f'http://127.0.0.1:5000/{cripto}/latest/USD')
                 if not latest or 'error' in latest:
                     raise ValueError("Ошибка при запросе данных")
-                
+
                 await query.edit_message_text(
                     text=f"Текущий курс {cripto}: {latest[cripto]}",
                     reply_markup=InlineKeyboardMarkup([
@@ -160,12 +161,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     ])
                 )
                 return
-                
+
             except Exception as e:
                 await query.edit_message_text(f"Ошибка: {e}")
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Вот что я умею:\n/start - Запустить бота\n/help - Показать справку")
+async def help_command(update: Update):
+    await update.message.reply_text(
+        "Вот что я умею:\n/start - Запустить бота\n/help - Показать справку")
 
 def main():
     app = ApplicationBuilder().token(bot).build()
