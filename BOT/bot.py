@@ -33,9 +33,44 @@ def get_time_buttons(cripto):
 
 def get_main_menu_buttons():
     """
-    return callback
+    return to menu
     """
     return [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
+
+async def handle_start(query):
+    """
+    return callback
+    """
+    if 'callback' in query.data:
+        await start(query, None)
+    else:
+        await start(query, query.message)
+
+async def handle_back(query):
+    """
+    to menu
+    """
+    await query.edit_message_text(
+        text="Выберите криптовалюту:",
+        reply_markup=InlineKeyboardMarkup(get_main_menu_buttons())
+    )
+
+async def handle_cripto_selection(query, ans):
+    """
+    spdgdsp
+    """
+    await query.edit_message_text(
+        text=f"Вы выбрали {ans}. Выберите действие:",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton("Показать текущий курс", callback_data=f'{ans}_latest')],
+                [InlineKeyboardButton("Статистика", callback_data=f'{ans}_history')],
+                [InlineKeyboardButton("Назад", callback_data='back')],
+                [InlineKeyboardButton("Главное меню", callback_data='start')],
+            ]
+        )
+    )
+
 
 async def start(update: Update, message=None):
     """
@@ -73,31 +108,15 @@ async def button_handler(update: Update):
     ans = query.data
 
     if "start" in ans:
-        if 'callback' in ans:
-            await start(update, None)
-        else:
-            await start(update, query.message)
+        await handle_start(query)
         return
 
     elif ans == "back":
-        await query.edit_message_text(
-            text="Выберите криптовалюту:",
-            reply_markup=InlineKeyboardMarkup(get_main_menu_buttons())
-        )
+        await handle_back(query)
         return
 
     elif ans in curr:
-        await query.edit_message_text(
-            text=f"Вы выбрали {ans}. Выберите действие:",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton("Показать текущий курс", callback_data=f'{ans}_latest')],
-                    [InlineKeyboardButton("Статистика", callback_data=f'{ans}_history')],
-                    [InlineKeyboardButton("Назад", callback_data='back')],
-                    [InlineKeyboardButton("Главное меню", callback_data='start')],
-                ]
-            )
-        )
+        await handle_cripto_selection(query, ans)
         return
 
     elif 'callback' in ans:
@@ -129,7 +148,8 @@ async def button_handler(update: Update):
         elif action in ["day", "hour"]:
             try:
                 await query.message.edit_reply_markup(reply_markup=None)
-                stats = make_request(url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
+                stats = make_request(
+                    url=f'http://127.0.0.1:5000/{cripto}/analytics/USD/{action}/10')
                 if not stats or 'error' in stats:
                     raise ValueError("Ошибка при запросе аналитики данных")
 
@@ -161,7 +181,6 @@ async def button_handler(update: Update):
             except FileNotFoundError as fe:
                 await query.message.reply_text(f"Ошибка при работе с файлами: {fe}")
 
-
         else:
             try:
                 latest = make_request(url=f'http://127.0.0.1:5000/{cripto}/latest/USD')
@@ -176,7 +195,6 @@ async def button_handler(update: Update):
                     ])
                 )
                 return
-
             except requests.HTTPError as ve:
                 await query.message.reply_text(f"Ошибка {ve}")
     else:
