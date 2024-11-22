@@ -8,19 +8,17 @@ from io import BytesIO
 import requests
 from dotenv import load_dotenv
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler , CallbackQueryHandler
+from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler , CallbackQueryHandler, CallbackContext
 from utils.s3_client import S3Client, make_request
-
-
 
 load_dotenv()
 
-bot = os.getenv("bot")
+bot = (os.getenv("bot"))
 curr = ['BTC', 'ETH', 'TON']
 
 
-def get_time_buttons(cripto):
+async def get_time_buttons(cripto):
     """
     return button with cripto
     """
@@ -31,7 +29,7 @@ def get_time_buttons(cripto):
         [InlineKeyboardButton("Главное меню", callback_data='start')],
     ]
 
-def get_main_menu_buttons():
+async def get_main_menu_buttons():
     """
     return to menu
     """
@@ -60,9 +58,10 @@ async def cripto_value(action, query, cripto):
     get data 
     """
     if action == "history":
+        time_buttons = await get_time_buttons(cripto)
         await query.edit_message_text(
             text=f"Вы выбрали {cripto}. Выберите период для анализа:",
-            reply_markup=InlineKeyboardMarkup(get_time_buttons(cripto))
+            reply_markup=InlineKeyboardMarkup(time_buttons)
         )
         return
 
@@ -144,39 +143,22 @@ async def start(update: Update, message=None):
         [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
     )
 
-    if isinstance(message, Update):  # Если передан объект Update (вызов через callback)
-        if message.callback_query:
-            await message.callback_query.edit_message_text(
+    if isinstance(update, Update):  # Если передан объект Update
+        if update.callback_query:
+            await update.callback_query.edit_message_text(
                 "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
                 reply_markup=reply_markup
             )
-        elif message.message:
-            await message.message.reply_text(
+        elif update.message:  # Используем update.message для reply
+            await update.message.reply_text(
                 "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
                 reply_markup=reply_markup
             )
-    elif message:  # Если передан объект Message
-        if hasattr(message, 'text'):
-            await message.edit_text(
-                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-                reply_markup=reply_markup
-            )
-        else:
-            await message.reply_text(
-                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-                reply_markup=reply_markup
-            )
-    elif update.message:  # Обработка команды /start
-        await update.message.reply_text(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-            reply_markup=reply_markup
-        )
     else:
         print("Ошибка: Нет доступного сообщения для отправки.")
 
 
-
-async def button_handler(update: Update):
+async def button_handler(update: Update, context: CallbackContext):
     """
     button logic
     """
@@ -185,6 +167,7 @@ async def button_handler(update: Update):
     ans = query.data
 
     if "start" in ans:
+        context.user_data['cripto'] = ans
         await handle_start(query)
         return
 
@@ -214,7 +197,7 @@ async def button_handler(update: Update):
 
     if "_" in ans:
         cripto, action = ans.split("_")
-        cripto_value(action, query, cripto)
+        await cripto_value(action, query, cripto)
 
     else:
         await query.edit_message_text(
@@ -234,6 +217,7 @@ def main():
     endpoint
     """
     app = ApplicationBuilder().token(bot).build()
+    app.bot.delete_webhook() 
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
