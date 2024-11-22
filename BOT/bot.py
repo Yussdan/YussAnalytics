@@ -217,8 +217,6 @@ def main():
     endpoint
     """
     app = ApplicationBuilder().token(bot).build()
-    app.bot.delete_webhook()
-
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CallbackQueryHandler(button_handler))
