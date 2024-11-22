@@ -139,7 +139,7 @@ async def start(update: Update, context: CallbackContext):
     """
     Handles the /start command. Greets the user and displays cryptocurrency options.
     """
-    context.user_data['test'] = 1
+    print(context)
     reply_markup = InlineKeyboardMarkup(
         [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
     )
@@ -163,12 +163,12 @@ async def button_handler(update: Update, context: CallbackContext):
     """
     button logic
     """
+    print(context)
     query = update.callback_query
     await query.answer()
     ans = query.data
 
     if "start" in ans:
-        context.user_data['cripto'] = ans
         await handle_start(query)
         return
 
