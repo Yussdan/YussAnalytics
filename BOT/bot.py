@@ -40,9 +40,9 @@ async def handle_start(query):
     return callback
     """
     if 'callback' in query.data:
-        await start(query, None)
+        await start(query)
     else:
-        await start(query, query.message)
+        await start(query)
 
 async def handle_back(query):
     """
