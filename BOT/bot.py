@@ -18,7 +18,7 @@ bot = os.getenv("bot")
 curr = ['BTC', 'ETH', 'TON']
 
 
-async def get_time_buttons(cripto):
+def get_time_buttons(cripto):
     """
     return button with cripto
     """
@@ -29,7 +29,7 @@ async def get_time_buttons(cripto):
         [InlineKeyboardButton("Главное меню", callback_data='start')],
     ]
 
-async def get_main_menu_buttons():
+def get_main_menu_buttons():
     """
     return to menu
     """
