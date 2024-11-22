@@ -8,7 +8,7 @@ from io import BytesIO
 import requests
 from dotenv import load_dotenv
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
 from telegram.ext import ApplicationBuilder, CommandHandler , CallbackQueryHandler, CallbackContext
 from utils.s3_client import S3Client, make_request
 
@@ -143,17 +143,16 @@ async def start(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup(
         [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
     )
-    if update.callback_query:
-        # Editing the message in response to the callback query
-        await update.callback_query.edit_message_text(
+    if isinstance(update, CallbackQuery):  # If it's a CallbackQuery object
+        await update.edit_message_text(
             "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
             reply_markup=reply_markup
         )
-    elif update.message:
-        # Replying to a regular message
-        await update.message.reply_text(
+    elif isinstance(update, Message):  # If it's a Message object
+        await update.reply_text(
             "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-            reply_markup=reply_markup)
+            reply_markup=reply_markup
+        )
     else:
         print("Ошибка: Нет доступного сообщения для отправки.")
 
