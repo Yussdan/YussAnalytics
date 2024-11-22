@@ -134,10 +134,11 @@ def get_plot(crypto, time, currency, limit):
 
 
 @app.errorhandler(404)
-def not_found():
+def not_found(e):
     """
     return error
     """
+    print(e)
     return jsonify({"error": "Resource not found"}), 404
 
 
