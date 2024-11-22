@@ -7,7 +7,7 @@ Crypto Analytics Bot is a Telegram bot that provides cryptocurrency analytics an
 ## Features
 
 - **Live Prices**: Get the latest exchange rate of popular cryptocurrencies.
-- **Historical Data**: Analyze historical data over the past 10 hours or 10 days.
+- **Historical Data**: Analyze historical data over the past 10 hours or 10 days
 - **Analytics**:
   - Average, median, minimum, and maximum prices.
 - **Visualizations**:
