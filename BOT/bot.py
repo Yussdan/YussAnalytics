@@ -135,10 +135,11 @@ async def handle_cripto_selection(query, ans):
     )
 
 
-async def start(update: Update):
+async def start(update: Update, context: CallbackContext):
     """
     Handles the /start command. Greets the user and displays cryptocurrency options.
     """
+    context.user_data['test'] = 1
     reply_markup = InlineKeyboardMarkup(
         [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
     )
@@ -214,15 +215,23 @@ async def help_command(update: Update):
 
 def main():
     """
-    endpoint
+    Bot initialization and polling
     """
+    # Create the application with your bot token
     app = ApplicationBuilder().token(bot).build()
+
+    # Add handlers for different commands
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CallbackQueryHandler(button_handler))
 
     print("Бот запущен...")
-    app.run_polling()
+    
+    # Run the bot with error handling
+    try:
+        app.run_polling()
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
