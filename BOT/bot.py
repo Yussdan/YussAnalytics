@@ -141,26 +141,39 @@ async def start(update: Update, message=None):
     Handles the /start command. Greets the user and displays cryptocurrency options.
     """
     reply_markup = InlineKeyboardMarkup(
-        [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]])
+        [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
+    )
 
-    if message:
-        if message.text:
+    if isinstance(message, Update):  # Если передан объект Update (вызов через callback)
+        if message.callback_query:
+            await message.callback_query.edit_message_text(
+                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+                reply_markup=reply_markup
+            )
+        elif message.message:
+            await message.message.reply_text(
+                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+                reply_markup=reply_markup
+            )
+    elif message:  # Если передан объект Message
+        if hasattr(message, 'text'):
             await message.edit_text(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-            reply_markup=reply_markup
+                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+                reply_markup=reply_markup
             )
         else:
             await message.reply_text(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-            reply_markup=reply_markup
+                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+                reply_markup=reply_markup
             )
-    elif update.message:
+    elif update.message:  # Обработка команды /start
         await update.message.reply_text(
             "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
             reply_markup=reply_markup
         )
     else:
         print("Ошибка: Нет доступного сообщения для отправки.")
+
 
 
 async def button_handler(update: Update):
