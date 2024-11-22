@@ -143,18 +143,17 @@ async def start(update: Update, context: CallbackContext):
     reply_markup = InlineKeyboardMarkup(
         [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
     )
-
-    if isinstance(update, Update):  # Если передан объект Update
-        if update.callback_query:
-            await update.callback_query.edit_message_text(
-                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-                reply_markup=reply_markup
-            )
-        elif update.message:  # Используем update.message для reply
-            await update.message.reply_text(
-                "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-                reply_markup=reply_markup
-            )
+    if update.callback_query:
+        # Editing the message in response to the callback query
+        await update.callback_query.edit_message_text(
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+            reply_markup=reply_markup
+        )
+    elif update.message:
+        # Replying to a regular message
+        await update.message.reply_text(
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+            reply_markup=reply_markup)
     else:
         print("Ошибка: Нет доступного сообщения для отправки.")
 
