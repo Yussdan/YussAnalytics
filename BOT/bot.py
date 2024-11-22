@@ -40,9 +40,9 @@ async def handle_start(query):
     return callback
     """
     if 'callback' in query.data:
-        await start(query)
+        await start(query, None)
     else:
-        await start(query)
+        await start(query, query.message)
 
 async def handle_back(query):
     """
@@ -135,10 +135,11 @@ async def handle_cripto_selection(query, ans):
     )
 
 
-async def start(update: Update):
+async def start(update: Update, context: CallbackContext):
     """
     Handles the /start command. Greets the user and displays cryptocurrency options.
     """
+    context.user_data['test'] = 1
     reply_markup = InlineKeyboardMarkup(
         [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
     )
@@ -214,7 +215,7 @@ async def help_command(update: Update):
 
 def main():
     """
-    endpoint
+    Bot initialization and polling
     """
     app = ApplicationBuilder().token(bot).build()
     app.add_handler(CommandHandler("start", start))
