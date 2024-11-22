@@ -8,13 +8,13 @@ from io import BytesIO
 import requests
 from dotenv import load_dotenv
 
-from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler , CallbackQueryHandler, CallbackContext
 from utils.s3_client import S3Client, make_request
 
 load_dotenv()
 
-bot = (os.getenv("bot"))
+bot = os.getenv("bot")
 curr = ['BTC', 'ETH', 'TON']
 
 
@@ -135,7 +135,7 @@ async def handle_cripto_selection(query, ans):
     )
 
 
-async def start(update: Update, message=None):
+async def start(update: Update):
     """
     Handles the /start command. Greets the user and displays cryptocurrency options.
     """
@@ -217,7 +217,7 @@ def main():
     endpoint
     """
     app = ApplicationBuilder().token(bot).build()
-    app.bot.delete_webhook() 
+    app.bot.delete_webhook()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
