@@ -112,7 +112,7 @@ def get_plot(crypto, time, currency, limit):
             color='black',
             ha='center', va='bottom', fontsize=9,
             bbox={'facecolor':data['color'][i],
-                      'alpha':0.3, 'edgecolor':None, 'boxstyle':round,'pad':0.3}
+                      'alpha':0.3, 'edgecolor':None, 'boxstyle':'round','pad':0.3}
         )
 
     plt.xlabel("Time")
