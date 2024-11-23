@@ -1,10 +1,16 @@
-import pytest
+"""
+test bot in CI
+"""
 from unittest.mock import AsyncMock, patch
-from bot.bot import start, button_handler
+import pytest
+from BOT.bot import start, button_handler
 
 
 @pytest.mark.asyncio
 async def test_start_command():
+    """
+    Test start_command
+    """
     mock_update = AsyncMock()
     mock_context = AsyncMock()
 
@@ -35,9 +41,12 @@ async def test_start_command():
 
 @pytest.mark.asyncio
 async def test_button_handler():
+    """
+    Test button_handler
+    """
     mock_update = AsyncMock()
     mock_context = AsyncMock()
-    
+
     mock_update.callback_query = AsyncMock()
     mock_update.callback_query.answer = AsyncMock()
 
@@ -51,10 +60,12 @@ async def test_button_handler():
         await button_handler(mock_update, mock_context)
         mock_handle_back.assert_called_once_with(mock_update.callback_query)
 
-    with patch("bot.bot.handle_cripto_selection", new_callable=AsyncMock) as mock_handle_cripto_selection:
+    with patch("bot.bot.handle_cripto_selection",
+                new_callable=AsyncMock) as mock_handle_cripto_selection:
         mock_update.callback_query.data = "BTC"
         await button_handler(mock_update, mock_context)
-        mock_handle_cripto_selection.assert_called_once_with(mock_update.callback_query, mock_update.callback_query.data)
+        mock_handle_cripto_selection.assert_called_once_with(
+            mock_update.callback_query, mock_update.callback_query.data)
 
     with patch("bot.bot.cripto_value", new_callable=AsyncMock) as mock_cripto_value:
         mock_update.callback_query.data = "BTC_history"
@@ -65,5 +76,4 @@ async def test_button_handler():
         mock_update.callback_query.data = "BTC_callback"
         await button_handler(mock_update, mock_context)
         mock_handle_callback.assert_called_once_with(mock_update.callback_query, "BTC_callback")
-
 
