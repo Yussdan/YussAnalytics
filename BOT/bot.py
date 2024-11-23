@@ -53,6 +53,24 @@ async def handle_back(query):
         reply_markup=InlineKeyboardMarkup(get_main_menu_buttons())
     )
 
+async def handle_callback(query, ans):
+    """
+    to menu
+    """
+    await query.message.edit_reply_markup(reply_markup=None)
+    ans=ans.replace('_callback','')
+    await query.message.reply_text(
+        text=f"Вы выбрали {ans}. Выберите действие:",
+        reply_markup=InlineKeyboardMarkup(
+            [
+                [InlineKeyboardButton("Показать текущий курс", callback_data=f'{ans}_latest')],
+                [InlineKeyboardButton("Статистика", callback_data=f'{ans}_history')],
+                [InlineKeyboardButton("Назад", callback_data='back')],
+                [InlineKeyboardButton("Главное меню", callback_data='start')],
+            ]
+        )
+    )
+
 async def cripto_value(action, query, cripto):
     """
     get data 
@@ -133,7 +151,6 @@ async def handle_cripto_selection(query, ans):
         )
     )
 
-
 async def start(update: Update, context: CallbackContext):
     """
     Handles the /start command. Greets the user and displays cryptocurrency options.
@@ -179,19 +196,7 @@ async def button_handler(update: Update, context: CallbackContext):
         return
 
     if 'callback' in ans:
-        await query.message.edit_reply_markup(reply_markup=None)
-        ans=ans.replace('_callback','')
-        await query.message.reply_text(
-            text=f"Вы выбрали {ans}. Выберите действие:",
-            reply_markup=InlineKeyboardMarkup(
-                [
-                    [InlineKeyboardButton("Показать текущий курс", callback_data=f'{ans}_latest')],
-                    [InlineKeyboardButton("Статистика", callback_data=f'{ans}_history')],
-                    [InlineKeyboardButton("Назад", callback_data='back')],
-                    [InlineKeyboardButton("Главное меню", callback_data='start')],
-                ]
-            )
-        )
+        await handle_callback(query, ans)
         return
 
     if "_" in ans:
