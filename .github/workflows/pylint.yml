@@ -23,6 +23,10 @@ jobs:
       run: |
         export PYTHONPATH=$(pwd)
         pylint $(git ls-files '*.py')
+    - name: Test bots
+      run: |
+        export PYTHONPATH=$(pwd)
+        python /tests/bot_test.py
 
   
 
