@@ -58,10 +58,9 @@ async def cripto_value(action, query, cripto):
     get data 
     """
     if action == "history":
-        time_buttons = await get_time_buttons(cripto)
         await query.edit_message_text(
             text=f"Вы выбрали {cripto}. Выберите период для анализа:",
-            reply_markup=InlineKeyboardMarkup(time_buttons)
+            reply_markup=InlineKeyboardMarkup(get_time_buttons(cripto))
         )
         return
 
