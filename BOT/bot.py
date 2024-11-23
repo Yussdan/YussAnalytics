@@ -9,7 +9,7 @@ import requests
 from dotenv import load_dotenv
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler , CallbackQueryHandler, CallbackContext
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, CallbackContext
 from utils.s3_client import S3Client, make_request
 
 load_dotenv()
