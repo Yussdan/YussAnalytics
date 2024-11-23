@@ -8,7 +8,7 @@ from io import BytesIO
 import requests
 from dotenv import load_dotenv
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler , CallbackQueryHandler, CallbackContext
 from utils.s3_client import S3Client, make_request
 
@@ -144,10 +144,10 @@ async def start(update: Update, context: CallbackContext):
         [[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
     )
     if hasattr(update, 'callback_query') and update.callback_query:
-                await update.callback_query.edit_message_text(
-                    "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
-                    reply_markup=reply_markup
-            )
+        await update.callback_query.edit_message_text(
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+            reply_markup=reply_markup
+    )
     elif hasattr(update, 'message') and update.message:
         await update.message.reply_text(
             "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
