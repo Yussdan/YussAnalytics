@@ -76,4 +76,3 @@ async def test_button_handler():
         mock_update.callback_query.data = "BTC_callback"
         await button_handler(mock_update, mock_context)
         mock_handle_callback.assert_called_once_with(mock_update.callback_query, "BTC_callback")
-
