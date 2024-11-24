@@ -14,9 +14,6 @@ Routes:
 """
 from flask import Flask, jsonify
 import requests
-
-app = Flask(__name__)
-
 from api.config import (
     DATA_SERVICE_URL,
     ANALYTICS_SERVICE_URL,
@@ -24,6 +21,7 @@ from api.config import (
     TTL
 )
 
+app = Flask(__name__)
 
 def fetch_data(url, timeout=TTL):
     """
@@ -31,7 +29,7 @@ def fetch_data(url, timeout=TTL):
     """
     try:
         response = requests.get(url, timeout=timeout)
-        response.raise_for_status()  # Генерирует исключение при ошибке HTTP
+        response.raise_for_status()
         return response
     except requests.RequestException as e:
         print(f"Error fetching data from {url}: {e}")
@@ -41,6 +39,13 @@ def fetch_data(url, timeout=TTL):
 def latest(crypto, currency):
     """
     Fetch the latest cryptocurrency data.
+
+    Args:
+        crypto (str): The cryptocurrency symbol (e.g., "BTC").
+        currency (str): The fiat currency symbol (e.g., "USD").
+    Returns:
+        Response: A JSON object containing 
+        the latest cryptocurrency data and the corresponding status code.
     """
     url = f"{DATA_SERVICE_URL}/latest/{crypto}/{currency}"
     response = fetch_data(url)
@@ -52,6 +57,14 @@ def latest(crypto, currency):
 def history(crypto, time, currency, limit):
     """
     Fetch historical cryptocurrency data.
+    Args:
+        crypto (str): The cryptocurrency symbol (e.g., "BTC").
+        time (str): The time period for historical data (e.g., "1h", "1d").
+        currency (str): The fiat currency symbol (e.g., "USD").
+        limit (int): The maximum number of records to fetch.
+    Returns:
+        Response: A JSON object containing 
+        the historical cryptocurrency data and the corresponding status code.
     """
     url = f"{DATA_SERVICE_URL}/history/{crypto}/{time}/{currency}/{limit}"
     response = fetch_data(url)
@@ -63,6 +76,13 @@ def history(crypto, time, currency, limit):
 def analytics(crypto, time, currency, limit):
     """
     Perform analytics on historical cryptocurrency data.
+    Args:
+        crypto (str): The cryptocurrency symbol (e.g., "BTC").
+        time (str): The time period for historical data (e.g., "1h", "1d").
+        currency (str): The fiat currency symbol (e.g., "USD").
+        limit (int): The maximum number of records to analyze.
+    Returns:
+        Response: A JSON object containing the analytics results and the corresponding status code.
     """
     url = f"{DATA_SERVICE_URL}/history/{crypto}/{time}/{currency}/{limit}"
     response = fetch_data(url)
@@ -77,6 +97,13 @@ def analytics(crypto, time, currency, limit):
 def plot(crypto, time, currency, limit):
     """
     Generate a plot for cryptocurrency trends.
+    Args:
+        crypto (str): The cryptocurrency symbol (e.g., "BTC").
+        time (str): The time period for historical data (e.g., "1h", "1d").
+        currency (str): The fiat currency symbol (e.g., "USD").
+        limit (int): The maximum number of records to use for plotting.
+    Returns:
+        Response: A JSON object containing the plot image data and the corresponding status code.
     """
     url = f"{DATA_SERVICE_URL}/history/{crypto}/{time}/{currency}/{limit}"
     response = fetch_data(url)
