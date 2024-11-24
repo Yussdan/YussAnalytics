@@ -102,7 +102,7 @@ async def button_handler(update: Update, context: CallbackContext):
         'callback': handle_callback,
     }
     if data in curr or 'callback' in data:
-        await handlers[data if data in curr else 'callback'](query, data.replace('_callback'))
+        await handlers[data if data in curr else 'callback'](query, data.replace('_callback', ''))
     elif data in handlers:
         await handlers[data](query)
     elif "_" in data:
