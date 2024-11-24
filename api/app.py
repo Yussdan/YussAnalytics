@@ -55,7 +55,7 @@ def plot(crypto, time, currency, limit):
 
     data = response.json()
     response = requests.post(
-        f"{PLOT_SERVICE_URL}/plot/{crypto}", json=data, timeout=TTL)
+        f"{PLOT_SERVICE_URL}/plot/{crypto}/{time}", json=data, timeout=TTL)
     return jsonify(response.json()), response.status_code
 
 if __name__ == "__main__":
