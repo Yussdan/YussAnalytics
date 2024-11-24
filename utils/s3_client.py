@@ -2,12 +2,7 @@
 module to connect S3 and back-end
 """
 import logging
-import os
-import requests
 import boto3
-from dotenv import load_dotenv
-
-load_dotenv()
 
 logger = logging.getLogger('api')
 
@@ -28,8 +23,8 @@ class S3Client:
         :param endpoint_url: S3 storage URL (optional).
         :param region: S3 region (optional).
         """
-        self.aws_access_key_id =  aws_access_key_id or os.getenv('s3_key_id')
-        self.aws_secret_access_key = aws_secret_access_key or os.getenv('s3_key_pass')
+        self.aws_access_key_id =  aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
         self.endpoint_url = endpoint_url or "https://s3.cloud.ru/"
         self.region = region or "ru-central-1"
 
@@ -73,16 +68,3 @@ class S3Client:
         """
         self._ensure_session()
         return self.s3.get_object(Bucket=bucket, Key=bucket_file)['Body'].read()
-
-
-def make_request(endpoint='', params=None, url='https://min-api.cryptocompare.com/data/'):
-    """
-    request to url + endpoint
-    """
-    try:
-        response = requests.get(url + endpoint, params=params, timeout=100)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        logger.error("Request error: %s", e)
-        return {"error": str(e)}

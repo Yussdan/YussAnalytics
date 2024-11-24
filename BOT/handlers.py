@@ -4,7 +4,8 @@ bot hadler
 from io import BytesIO
 import requests
 
-from utils.s3_client import S3Client, make_request
+from utils.s3_client import S3Client
+from utils.make_request import make_request
 from BOT.keyboards import get_main_menu_buttons, \
                         get_time_buttons, get_action_buttons, callback_photo
 from BOT.config import BASE_URL
