@@ -8,7 +8,8 @@ from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandle
 
 from BOT.keyboards import get_main_menu_buttons
 from BOT.config import bot, curr
-from BOT.handlers import handle_start, handle_back, handle_cripto_selection, handle_callback, handle_cripto_value
+from BOT.handlers import handle_start, handle_back, \
+                        handle_cripto_selection, handle_callback, handle_cripto_value
 
 
 async def start(update: Update, context: CallbackContext):

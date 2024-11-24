@@ -1,3 +1,6 @@
+"""
+button
+"""
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from BOT.config import curr
 
@@ -15,14 +18,18 @@ def get_time_buttons(cripto):
         ]
     )
 
+
 def get_main_menu_buttons():
     """
     return to menu
     """
-    return InlineKeyboardMarkup[[InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]]
+    return InlineKeyboardMarkup([InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr])
+
 
 def get_action_buttons(cripto):
-
+    """
+    return action button
+    """
     return InlineKeyboardMarkup(
             [
                 [InlineKeyboardButton("Показать текущий курс", callback_data=f'{cripto}_latest')],
@@ -32,7 +39,11 @@ def get_action_buttons(cripto):
             ]
         )
 
+
 def callback_photo(cripto):
+    """
+    return callback button
+    """
     return InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],

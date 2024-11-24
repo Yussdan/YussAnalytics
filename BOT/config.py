@@ -1,3 +1,6 @@
+"""
+this module is base config bot
+"""
 import os
 from dotenv import load_dotenv
 

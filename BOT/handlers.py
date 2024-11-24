@@ -1,8 +1,12 @@
+"""
+bot hadler 
+"""
 from io import BytesIO
 import requests
 
 from utils.s3_client import S3Client, make_request
-from BOT.keyboards import get_main_menu_buttons, get_time_buttons, get_action_buttons, callback_photo
+from BOT.keyboards import get_main_menu_buttons, \
+                        get_time_buttons, get_action_buttons, callback_photo
 from BOT.bot import start
 from BOT.config import BASE_URL
 
