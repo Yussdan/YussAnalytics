@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route("/analytics", methods=["POST"])
 def analytics():
-    data = request.json  # Данные передаются из Data Service
+    data = request.json
     df = pd.DataFrame(data)
 
     if df.empty:

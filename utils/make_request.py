@@ -1,5 +1,8 @@
-import requests
+"""
+module to get data from external api
+"""
 import logging
+import requests
 
 logger = logging.getLogger('api')
 

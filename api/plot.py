@@ -1,9 +1,13 @@
+"""
+module generate plot
+"""
 import io
 import matplotlib.pyplot as plt
 import matplotlib
-from flask import Flask, jsonify, request
-from utils.s3_client import S3Client
 import pandas as pd
+from flask import Flask, jsonify, request
+
+from utils.s3_client import S3Client
 from api.config import s3_key_id, s3_key_pass, bucket
 
 matplotlib.use('Agg')
@@ -13,6 +17,9 @@ app = Flask(__name__)
 
 @app.route("/plot", methods=["POST"])
 def generate_plot():
+    """
+    generate plot
+    """
     data = request.json
     df = pd.DataFrame(data)
 
