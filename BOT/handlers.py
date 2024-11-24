@@ -66,8 +66,10 @@ async def handle_cripto_value(time, query, crypto):
                 raise ValueError("Ошибка при запросе аналитики данных")
 
             make_request(url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')
-            data = S3Client(aws_access_key_id=s3_key_id, aws_secret_access_key=s3_key_pass).download_image(
-                bucket=bucket, bucket_file=f'{crypto}/{time}.png')
+            data = S3Client(
+                aws_access_key_id=s3_key_id,
+                aws_secret_access_key=s3_key_pass
+            ).download_image(bucket=bucket, bucket_file=f'{crypto}/{time}.png')
             if not data:
                 raise FileNotFoundError("Ошибка при загрузке изображения")
 
