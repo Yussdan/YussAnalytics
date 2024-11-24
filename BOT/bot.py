@@ -94,27 +94,20 @@ async def button_handler(update: Update, context: CallbackContext):
     print(context)
     query = update.callback_query
     await query.answer()
-    ans = query.data
+    data = query.data
 
-    if "start" in ans:
-        await handle_start(query)
-        return
+    handlers = {
+        "start": handle_start,
+        "back": handle_back,
+        **{crypto: handle_cripto_selection for crypto in curr},
+        'callback': handle_callback,
+    }
 
-    if ans == "back":
-        await handle_back(query)
-        return
-
-    if ans in curr:
-        await handle_cripto_selection(query, ans)
-        return
-
-    if 'callback' in ans:
-        await handle_callback(query, ans)
-        return
-
-    if "_" in ans:
-        cripto, action = ans.split("_")
-        await handle_cripto_value(action, query, cripto)
+    if data in handlers:
+        await handlers[data](query)
+    elif "_" in data:
+        crypto, time = data.split("_")
+        await handle_cripto_value(time, query, crypto)
     else:
         await query.edit_message_text(
             text="Неизвестная команда. Попробуйте снова.",
@@ -155,7 +148,7 @@ def main():
 
     Example:
         Run the script to launch the bot:
-        $ python bot_module.py
+        $ python BOT/bot.py
 
     Output:
         The bot begins listening for user interactions.

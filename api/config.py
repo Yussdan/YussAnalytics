@@ -10,6 +10,10 @@ Environment Variables:
     - s3_key_id: The AWS S3 access key ID.
     - s3_key_pass: The AWS S3 secret access key.
     - bucket: The name of the S3 bucket to be used.
+    - DATA_SERVICE_URL: data service url
+    - ANALYTICS_SERVICE_URL: analyze url
+    - PLOT_SERVICE_URL: plot url
+    - TTL: timeout
 
 Usage:
     Simply import this module to access the loaded environment variables.
@@ -24,3 +28,7 @@ api_key = os.getenv("api_key")  # The API key for external services
 s3_key_id = os.getenv("s3_key_id")  # S3 Access Key ID
 s3_key_pass = os.getenv("s3_key_pass")  # S3 Secret Access Key
 bucket = os.getenv("bucket")  # S3 Bucket name
+DATA_SERVICE_URL = "http://127.0.0.1:5001"
+ANALYTICS_SERVICE_URL = "http://127.0.0.1:5002"
+PLOT_SERVICE_URL = "http://127.0.0.1:5003"
+TTL=40
