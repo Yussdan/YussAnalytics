@@ -20,8 +20,8 @@ async def test_start_command():
     mock_update.message = AsyncMock()
     mock_update.message.reply_text = AsyncMock()
 
-    with patch("BOT.bot.InlineKeyboardMarkup") as mock_markup, \
-         patch("BOT.bot.InlineKeyboardButton") as mock_button:
+    with patch("BOT.keyboards.InlineKeyboardMarkup") as mock_markup, \
+         patch("BOT.keyboards.InlineKeyboardButton") as mock_button:
         mock_markup.return_value = "mock_markup"
         mock_button.return_value = "mock_button"
 
@@ -67,7 +67,7 @@ async def test_button_handler():
         mock_handle_cripto_selection.assert_called_once_with(
             mock_update.callback_query, mock_update.callback_query.data)
 
-    with patch("BOT.bot.cripto_value", new_callable=AsyncMock) as mock_cripto_value:
+    with patch("BOT.bot.handle_cripto_value", new_callable=AsyncMock) as mock_cripto_value:
         mock_update.callback_query.data = "BTC_history"
         await button_handler(mock_update, mock_context)
         mock_cripto_value.assert_called_once_with('history', mock_update.callback_query, 'BTC')
