@@ -20,8 +20,7 @@ def generate_plot():
     """
     generate plot
     """
-    data = request.json
-    df, error_response = validate_data(data)
+    df, error_response = validate_data(request.json)
     if error_response:
         return error_response
 
