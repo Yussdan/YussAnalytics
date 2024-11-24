@@ -19,7 +19,6 @@ def validate_data(data, time=None):
     }
     for info in data
     ])
-    print(df.tail)
 
     if df.empty:
         return None, jsonify({"error": "No data provided"})
