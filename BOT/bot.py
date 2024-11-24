@@ -65,7 +65,6 @@ async def start(update: Update, context: CallbackContext):
             reply_markup=reply_markup
         )
     else:
-        print(type(update))
         print(f"Неизвестный тип обновления: {update}")
 
 async def button_handler(update: Update, context: CallbackContext):
@@ -103,7 +102,7 @@ async def button_handler(update: Update, context: CallbackContext):
         'callback': handle_callback,
     }
 
-    if data in handlers:
+    if handlers in data:
         if data in curr:
             await handlers[data](query, data)
         else:
