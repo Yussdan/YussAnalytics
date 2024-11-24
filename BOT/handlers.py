@@ -11,10 +11,10 @@ from BOT.config import BASE_URL
 
 
 async def handle_start(query):
-    from BOT.bot import start
     """
     return callback
     """
+    from BOT.bot import start # Local import to avoid circular dependency
     if 'callback' in query.data:
         await start(query, None)
     else:
