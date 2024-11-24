@@ -1,22 +1,45 @@
 """
-bot hadler 
+Bot Handlers Module
+
+This module defines handlers for various bot interactions, including processing user input,
+fetching data, and returning responses in the form of messages or media (e.g., plots and stats).
+
+Functions:
+    - handle_start: Handles the start command and resets the main menu.
+    - handle_back: Navigates back to the main cryptocurrency selection menu.
+    - handle_callback: Processes user selection and navigates to the action menu.
+    - handle_cripto_value: Fetches cryptocurrency data (latest, history, or plots).
+    - handle_cripto_selection: Handles the initial cryptocurrency selection.
+
+Dependencies:
+    - Requests to external APIs for data and analysis.
+    - S3Client for image retrieval from cloud storage.
 """
 from io import BytesIO
 import requests
 
 from utils.s3_client import S3Client
 from utils.make_request import make_request
-from BOT.keyboards import get_main_menu_buttons, \
-                        get_time_buttons, get_action_buttons, callback_photo
+from BOT.keyboards import (
+    get_main_menu_buttons,
+    get_time_buttons,
+    get_action_buttons,
+    callback_photo
+)
 from BOT.config import BASE_URL
 from api.config import s3_key_id, s3_key_pass, bucket
 
 
 async def handle_start(query):
     """
-    return callback
+    Handles the /start command or callback.
+
+    Args:
+        query: Telegram query object containing user interaction data.
+
+    Resets the interface and displays the main menu.
     """
-    from BOT.bot import start # pylint: disable=C0415
+    from BOT.bot import start  # pylint: disable=C0415
     if 'callback' in query.data:
         await start(query, None)
     else:
@@ -26,7 +49,10 @@ async def handle_start(query):
 
 async def handle_back(query):
     """
-    to menu
+    Navigates back to the main cryptocurrency selection menu.
+
+    Args:
+        query: Telegram query object containing user interaction data.
     """
     await query.edit_message_text(
         text="Выберите криптовалюту:",
@@ -36,10 +62,16 @@ async def handle_back(query):
 
 async def handle_callback(query, ans):
     """
-    to menu
+    Navigates to the action menu for a selected cryptocurrency.
+
+    Args:
+        query: Telegram query object containing user interaction data.
+        ans (str): User selection string, specifying the cryptocurrency.
+
+    Modifies the reply markup to present action options for the selected cryptocurrency.
     """
     await query.message.edit_reply_markup(reply_markup=None)
-    ans=ans.replace('_callback','')
+    ans = ans.replace('_callback', '')
     await query.message.reply_text(
         text=f"Вы выбрали {ans}. Выберите действие:",
         reply_markup=get_action_buttons(ans)
@@ -48,7 +80,15 @@ async def handle_callback(query, ans):
 
 async def handle_cripto_value(time, query, crypto):
     """
-    get data 
+    Fetches and processes cryptocurrency data.
+
+    Args:
+        time (str): Time range for data ('latest', 'day', 'hour', or 'history').
+        query: Telegram query object containing user interaction data.
+        crypto (str): Selected cryptocurrency.
+
+    Depending on the time parameter, fetches either the latest price, historical data,
+    or generates a plot. Returns the data and/or an image in response.
     """
     if time == "history":
         await query.edit_message_text(
@@ -109,7 +149,11 @@ async def handle_cripto_value(time, query, crypto):
 
 async def handle_cripto_selection(query, ans):
     """
-    spdgdsp
+    Handles cryptocurrency selection and navigates to the action menu.
+
+    Args:
+        query: Telegram query object containing user interaction data.
+        ans (str): Selected cryptocurrency.
     """
     await query.edit_message_text(
         text=f"Вы выбрали {ans}. Выберите действие:",

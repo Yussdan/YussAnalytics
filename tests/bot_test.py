@@ -1,5 +1,19 @@
 """
-test bot in CI
+Tests for the Telegram bot in CI.
+
+This module contains tests for verifying the functionality of the bot's main commands 
+and button handlers. The tests cover the start command and button click handlers.
+
+Technologies used:
+- pytest for organizing tests.
+- unittest.mock for creating mock objects and replacing dependencies.
+- Async tests using pytest.mark.asyncio.
+
+Functions being tested:
+- start: Handles the /start command, sending a welcome message 
+            and a cryptocurrency selection keyboard.
+- button_handler: Handles button presses and triggers 
+            the corresponding handler for the selected action.
 """
 from unittest.mock import AsyncMock, patch
 import pytest
@@ -9,7 +23,13 @@ from BOT.bot import start, button_handler
 @pytest.mark.asyncio
 async def test_start_command():
     """
-    Test start_command
+    Tests the /start command handler.
+
+    This test checks that when the /start command is invoked, the bot sends a 
+    welcome message with a keyboard for selecting a cryptocurrency.
+
+    The update and context objects are mocked, and the InlineKeyboardMarkup and 
+    InlineKeyboardButton are patched to simulate the keyboard.
     """
     mock_update = AsyncMock()
     mock_context = AsyncMock()
@@ -42,7 +62,13 @@ async def test_start_command():
 @pytest.mark.asyncio
 async def test_button_handler():
     """
-    Test button_handler
+    Tests the button press handler.
+
+    This test verifies that when a button is pressed, the bot correctly handles 
+    the button click and calls the appropriate handler depending on the button data.
+
+    The test mocks different button actions, such as 'start', 'back', cryptocurrency selection, 
+    and callback actions, ensuring that the correct handler function is invoked for each.
     """
     mock_update = AsyncMock()
     mock_context = AsyncMock()

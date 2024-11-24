@@ -1,6 +1,23 @@
 """
-module generate plot
+Plot Generation Module
+
+This module provides an API endpoint to generate and upload cryptocurrency price trend plots. 
+It uses Matplotlib for generating plots and uploads the resulting images to an S3 bucket.
+
+Functionality:
+    - Validate and preprocess cryptocurrency data.
+    - Generate a time-series plot of close prices.
+    - Upload the generated plot image to an S3 bucket.
+
+Dependencies:
+    - `S3Client`: Utility for interacting with AWS S3.
+    - `validate_data`: Function to validate and preprocess input data.
+    - `matplotlib`: Library for creating visualizations.
+
+Routes:
+    - /plot/<crypto>/<time> [POST]: Accepts JSON data to generate a plot and uploads it to S3.
 """
+
 import io
 import matplotlib.pyplot as plt
 import matplotlib
@@ -10,7 +27,7 @@ from utils.s3_client import S3Client
 from api.data_validation import validate_data
 from api.config import s3_key_id, s3_key_pass, bucket
 
-matplotlib.use('Agg')
+matplotlib.use('Agg')  # Use non-interactive backend for server-side rendering
 
 s3_client = S3Client(aws_access_key_id=s3_key_id, aws_secret_access_key=s3_key_pass)
 app = Flask(__name__)
@@ -18,12 +35,54 @@ app = Flask(__name__)
 @app.route("/plot/<crypto>/<time>", methods=["POST"])
 def generate_plot(crypto, time):
     """
-    generate plot
+    Generate and upload a cryptocurrency price trend plot.
+
+    This endpoint takes cryptocurrency price data as JSON, generates a time-series plot 
+    of close prices, and uploads the resulting image to an S3 bucket. 
+
+    Args:
+        crypto (str): The cryptocurrency symbol (e.g., "BTC").
+        time (str): The time interval for the plot (e.g., "hour", "day").
+
+    Input:
+        JSON payload containing an array of data records with the fields:
+        - 'time' (int): Unix timestamp of the record.
+        - 'close' (float): The closing price during the interval.
+
+    Returns:
+        Response: 
+        - On success: JSON object with the URL of the uploaded plot:
+            {
+                "url": "<S3_bucket_url>"
+            }
+        - On failure: JSON error message with appropriate HTTP status code.
+
+    Example:
+        Request:
+            POST /plot/BTC/hour
+            JSON payload:
+            [
+                {"time": 1698278400, "close": 9800},
+                {"time": 1698282000, "close": 9900}
+            ]
+
+        Response:
+            {
+                "url": "https://s3.amazonaws.com/<bucket>/BTC/plots/plot.png"
+            }
+
+    Notes:
+        - The plot includes:
+            * X-axis: Time (formatted based on the specified interval).
+            * Y-axis: Closing price.
+            * Title: "Price Trend".
+        - The plot is saved in PNG format and uploaded to the specified S3 bucket.
     """
     df, error_response = validate_data(request.json, time)
     if error_response:
         return error_response
 
+    # Generate the plot
     plt.figure(figsize=(12, 6))
     plt.plot(df['time'], df['close'], marker='o')
     plt.xlabel("Time")
@@ -31,11 +90,13 @@ def generate_plot(crypto, time):
     plt.title("Price Trend")
     plt.grid()
 
+    # Save the plot to a buffer
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
     buffer.seek(0)
     plt.close()
 
+    # Upload the plot to S3
     s3_path = f"{crypto}/plots/plot.png"
     resp = s3_client.upload_image(bucket=bucket, local_file=buffer, bucket_file=s3_path)
     return jsonify({'url': resp}), 200
