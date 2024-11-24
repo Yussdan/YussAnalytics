@@ -12,7 +12,7 @@ def validate_data(data, time=None):
     df = pd.DataFrame([
     {
         "time": datetime.fromtimestamp(info['time']).strftime(
-            '%H:%M' if time == 'hour' else '%Y-%m-%d' if time == 'day' else str(data['time'])),
+            '%H:%M' if time == 'hour' else '%Y-%m-%d' if time == 'day' else str(info['time'])),
         "high": info['high'],
         "low": info['low'],
         "close": info['close']

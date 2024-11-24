@@ -16,10 +16,10 @@ def analytics():
         return error_response
 
     return jsonify({
-        "average": df['close'].mean(),
-        "median": df['close'].median(),
-        "min": df['low'].min(),
-        "max": df['high'].max(),
+        "average": round(df['close'].mean(), 3),
+        "median": round(df['close'].median(), 3),
+        "min": round(df['low'].min(), 3),
+        "max": round(df['high'].max(), 3),
     }), 200
 
 if __name__ == "__main__":
