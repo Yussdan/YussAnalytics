@@ -14,7 +14,7 @@ async def handle_start(query):
     """
     return callback
     """
-    from BOT.bot import start # Local import to avoid circular dependency
+    from BOT.bot import start # pylint: disable=C0415
     if 'callback' in query.data:
         await start(query, None)
     else:
