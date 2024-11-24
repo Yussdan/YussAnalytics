@@ -6,9 +6,9 @@ import requests
 
 app = Flask(__name__)
 
-DATA_SERVICE_URL = "http://data-service:5001"
-ANALYTICS_SERVICE_URL = "http://analytics-service:5002"
-PLOT_SERVICE_URL = "http://plot-service:5003"
+DATA_SERVICE_URL = "http://127.0.0.1:5001"
+ANALYTICS_SERVICE_URL = "http://127.0.0.1:5002"
+PLOT_SERVICE_URL = "http://127.0.0.1:5003"
 TTL=40
 
 @app.route("/latest/<crypto>/<currency>", methods=["GET"])
