@@ -9,6 +9,7 @@ from utils.make_request import make_request
 from BOT.keyboards import get_main_menu_buttons, \
                         get_time_buttons, get_action_buttons, callback_photo
 from BOT.config import BASE_URL
+from api.config import s3_key_id, s3_key_pass, bucket
 
 
 async def handle_start(query):
@@ -65,8 +66,8 @@ async def handle_cripto_value(time, query, crypto):
                 raise ValueError("Ошибка при запросе аналитики данных")
 
             make_request(url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')
-            data = S3Client().download_image(
-                bucket='bucket-2490b3', bucket_file=f'{crypto}/{time}.png')
+            data = S3Client(aws_access_key_id=s3_key_id, aws_secret_access_key=s3_key_pass).download_image(
+                bucket=bucket, bucket_file=f'{crypto}/{time}.png')
             if not data:
                 raise FileNotFoundError("Ошибка при загрузке изображения")
 
