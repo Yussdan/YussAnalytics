@@ -4,10 +4,10 @@ module generate plot
 import io
 import matplotlib.pyplot as plt
 import matplotlib
-import pandas as pd
 from flask import Flask, jsonify, request
 
 from utils.s3_client import S3Client
+from api.data_validation import validate_data
 from api.config import s3_key_id, s3_key_pass, bucket
 
 matplotlib.use('Agg')
@@ -21,10 +21,9 @@ def generate_plot():
     generate plot
     """
     data = request.json
-    df = pd.DataFrame(data)
-
-    if df.empty:
-        return jsonify({"error": "No data provided"}), 400
+    df, error_response = validate_data(data)
+    if error_response:
+        return error_response
 
     plt.figure(figsize=(12, 6))
     plt.plot(df['time'], df['close'], marker='o')

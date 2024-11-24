@@ -1,15 +1,20 @@
+"""
+analyze data from api
+"""
 from flask import Flask, jsonify, request
-import pandas as pd
+from api.data_validation import validate_data
 
 app = Flask(__name__)
 
 @app.route("/analytics", methods=["POST"])
 def analytics():
+    """
+    analyze data from api
+    """
     data = request.json
-    df = pd.DataFrame(data)
-
-    if df.empty:
-        return jsonify({"error": "No data provided"}), 400
+    df, error_response = validate_data(data)
+    if error_response:
+        return error_response
 
     return jsonify({
         "average": df['close'].mean(),
