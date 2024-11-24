@@ -15,12 +15,12 @@ matplotlib.use('Agg')
 s3_client = S3Client(aws_access_key_id=s3_key_id, aws_secret_access_key=s3_key_pass)
 app = Flask(__name__)
 
-@app.route("/plot/<crypto>", methods=["POST"])
-def generate_plot(crypto):
+@app.route("/plot/<crypto>/<time>", methods=["POST"])
+def generate_plot(crypto, time):
     """
     generate plot
     """
-    df, error_response = validate_data(request.json)
+    df, error_response = validate_data(request.json, time)
     if error_response:
         return error_response
 
