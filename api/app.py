@@ -32,7 +32,8 @@ def latest(crypto, currency):
         currency (str): The fiat currency symbol (e.g., "USD").
 
     Returns:
-        Response: A JSON object containing the latest cryptocurrency data and the corresponding status code.
+        Response: A JSON object containing 
+        the latest cryptocurrency data and the corresponding status code.
     """
     response = requests.get(f"{DATA_SERVICE_URL}/latest/{crypto}/{currency}", timeout=TTL)
     return jsonify(response.json()), response.status_code
@@ -49,7 +50,8 @@ def history(crypto, time, currency, limit):
         limit (int): The maximum number of records to fetch.
 
     Returns:
-        Response: A JSON object containing the historical cryptocurrency data and the corresponding status code.
+        Response: A JSON object containing 
+        the historical cryptocurrency data and the corresponding status code.
     """
     response = requests.get(
         f"{DATA_SERVICE_URL}/history/{crypto}/{time}/{currency}/{limit}", timeout=TTL)

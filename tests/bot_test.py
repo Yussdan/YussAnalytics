@@ -10,8 +10,10 @@ Technologies used:
 - Async tests using pytest.mark.asyncio.
 
 Functions being tested:
-- start: Handles the /start command, sending a welcome message and a cryptocurrency selection keyboard.
-- button_handler: Handles button presses and triggers the corresponding handler for the selected action.
+- start: Handles the /start command, sending a welcome message 
+            and a cryptocurrency selection keyboard.
+- button_handler: Handles button presses and triggers 
+            the corresponding handler for the selected action.
 """
 from unittest.mock import AsyncMock, patch
 import pytest

@@ -6,10 +6,10 @@ Telegram bot interface. The buttons are used to navigate between menus and perfo
 related to cryptocurrency selection and data display.
 
 Functions:
-    - get_time_buttons: Returns buttons for selecting a time period (10 days or 10 hours) for cryptocurrency analysis.
+    - get_time_buttons: Returns buttons for selecting a time period (10 days or 10 hours)
     - get_main_menu_buttons: Returns buttons for selecting a cryptocurrency from the main menu.
-    - get_action_buttons: Returns buttons for performing actions (view current price, show statistics) on a selected cryptocurrency.
-    - callback_photo: Returns buttons for navigating back or to the main menu after displaying a plot or data.
+    - get_action_buttons: Returns buttons for performing actions on a selected cryptocurrency.
+    - callback_photo: Returns buttons for navigating back or to the main menu.
 
 Dependencies:
     - curr: List of supported cryptocurrencies (BTC, ETH, TON).
@@ -26,8 +26,8 @@ def get_time_buttons(cripto):
         cripto (str): The selected cryptocurrency (e.g., 'BTC', 'ETH').
 
     Returns:
-        InlineKeyboardMarkup: A markup object with buttons for time period selection (10 days or 10 hours),
-        as well as 'Back' and 'Main Menu' options.
+        InlineKeyboardMarkup: A markup object with buttons for time period selection 
+        (10 days or 10 hours), as well as 'Back' and 'Main Menu' options.
     """
     return InlineKeyboardMarkup(
         [
@@ -44,7 +44,8 @@ def get_main_menu_buttons():
     Generates an inline keyboard with buttons for selecting a cryptocurrency.
 
     Returns:
-        InlineKeyboardMarkup: A markup object with buttons for each cryptocurrency in the 'curr' list.
+        InlineKeyboardMarkup: A markup object with buttons 
+        for each cryptocurrency in the 'curr' list.
     """
     return InlineKeyboardMarkup([
         [InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]
@@ -59,7 +60,8 @@ def get_action_buttons(cripto):
         cripto (str): The selected cryptocurrency (e.g., 'BTC', 'ETH').
 
     Returns:
-        InlineKeyboardMarkup: A markup object with buttons to show the current price or view statistics for the selected cryptocurrency,
+        InlineKeyboardMarkup: A markup object with buttons to show 
+        the current price or view statistics for the selected cryptocurrency, 
         as well as 'Back' and 'Main Menu' options.
     """
     return InlineKeyboardMarkup(

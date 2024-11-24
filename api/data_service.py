@@ -6,8 +6,8 @@ from an external API. It uses a utility function `make_request` for making HTTP 
 to the external API and handles error responses gracefully.
 
 Routes:
-    - /latest/<crypto>/<currency>: Fetches the latest price for the specified cryptocurrency in the given currency.
-    - /history/<crypto>/<time>/<currency>/<int:limit>: Fetches historical price data for the specified cryptocurrency.
+    - /latest/<crypto>/<currency>: Fetches the latest price for the cryptocurrency.
+    - /history/<crypto>/<time>/<currency>/<int:limit>: Fetches historical price data.
 
 Dependencies:
     - `make_request`: A utility function for making HTTP requests.

@@ -1,7 +1,7 @@
 """
 Module to interact with S3 and manage file storage.
 
-This module provides a class to connect to an S3-compatible service (e.g., AWS S3 or custom S3 storage) 
+This module provides a class to connect to an S3-compatible service.
 and perform file operations like uploading and downloading images.
 
 Dependencies:
@@ -27,7 +27,7 @@ class S3Client:
     Attributes:
         aws_access_key_id (str): AWS access key ID.
         aws_secret_access_key (str): AWS secret access key.
-        endpoint_url (str): The endpoint URL for S3 storage (optional, default is "https://s3.cloud.ru/").
+        endpoint_url (str): The endpoint URL for S3 storage.
         region (str): The region for the S3 service (optional, default is "ru-central-1").
 
     Methods:
