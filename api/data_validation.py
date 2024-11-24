@@ -5,9 +5,6 @@ from datetime import datetime
 import pandas as pd
 from flask import jsonify
 
-import pandas as pd
-from datetime import datetime
-
 def validate_data(data, time=None):
     """
     Check and validate data.
