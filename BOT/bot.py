@@ -101,12 +101,10 @@ async def button_handler(update: Update, context: CallbackContext):
         **{crypto: handle_cripto_selection for crypto in curr},
         'callback': handle_callback,
     }
-
-    if handlers in data:
-        if data in curr:
-            await handlers[data](query, data)
-        else:
-            await handlers[data](query)
+    if data in curr or 'callback' in data:
+        await handlers[data if data in curr else 'callback'](query, data.replace('_callback'))
+    elif data in handlers:
+        await handlers[data](query)
     elif "_" in data:
         crypto, time = data.split("_")
         await handle_cripto_value(time, query, crypto)
