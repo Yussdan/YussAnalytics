@@ -42,13 +42,13 @@ async def handle_start(query):
     if 'callback' in query.data:
         await start(query, None)
     else:
+        await query.message.edit_reply_markup(reply_markup=None)
         await start(query, query.message)
 
 async def handle_back(query):
     """
     to menu
     """
-    await query.message.edit_reply_markup(reply_markup=None)
     await query.edit_message_text(
         text="Выберите криптовалюту:",
         reply_markup=InlineKeyboardMarkup(get_main_menu_buttons())
