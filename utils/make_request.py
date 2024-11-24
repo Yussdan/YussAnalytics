@@ -1,5 +1,15 @@
 """
-module to get data from external api
+Module to fetch data from an external API.
+
+This module provides functionality to send HTTP requests to an external API, 
+specifically to the CryptoCompare API, to retrieve cryptocurrency data.
+
+Dependencies:
+- requests: Used for making HTTP requests to the API.
+- logging: Used for logging errors and important events.
+
+Functions:
+- make_request: Sends a GET request to the specified endpoint and returns the response data in JSON format.
 """
 import logging
 import requests

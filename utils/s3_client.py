@@ -1,5 +1,15 @@
 """
-module to connect S3 and back-end
+Module to interact with S3 and manage file storage.
+
+This module provides a class to connect to an S3-compatible service (e.g., AWS S3 or custom S3 storage) 
+and perform file operations like uploading and downloading images.
+
+Dependencies:
+- boto3: AWS SDK for Python, used for interacting with S3-compatible services.
+- logging: Used for logging error and important information messages.
+
+Class:
+- S3Client: A class that connects to S3, manages sessions, and handles file uploads and downloads.
 """
 import logging
 import boto3
@@ -9,7 +19,22 @@ logger = logging.getLogger('api')
 
 class S3Client:
     """
-    class connect to S3
+    A class to interact with S3-compatible services.
+
+    This class provides methods to connect to an S3 service and manage files, 
+    including uploading and downloading files to/from S3.
+
+    Attributes:
+        aws_access_key_id (str): AWS access key ID.
+        aws_secret_access_key (str): AWS secret access key.
+        endpoint_url (str): The endpoint URL for S3 storage (optional, default is "https://s3.cloud.ru/").
+        region (str): The region for the S3 service (optional, default is "ru-central-1").
+
+    Methods:
+        _get_session: Creates an S3 session if it doesn't exist.
+        _ensure_session: Ensures an active session is available.
+        upload_image: Uploads an image file to an S3 bucket.
+        download_image: Downloads an image file from an S3 bucket.
     """
     def __init__(self,
                 aws_access_key_id=None,
@@ -35,7 +60,12 @@ class S3Client:
         self.s3 = None
 
     def _get_session(self):
-        """Creates an S3 session if it has not already been created."""
+        """
+        Creates an S3 session if it has not already been created.
+
+        This method is responsible for setting up a session with the S3 service 
+        using the provided AWS credentials, region, and endpoint URL.
+        """
         if self.s3 is None:
             self.s3 = boto3.session.Session(
                 aws_access_key_id=self.aws_access_key_id,
@@ -44,16 +74,29 @@ class S3Client:
             ).client(service_name='s3', endpoint_url=self.endpoint_url)
 
     def _ensure_session(self):
-        """Checks for an active session, creating it if necessary."""
+        """
+        Ensures an active session with S3 exists, creating it if necessary.
+
+        This method checks whether an active S3 session exists. If not, it calls
+        _get_session() to create a new session.
+        """
         if not self.s3:
             self._get_session()
 
     def upload_image(self, bucket: str, local_file: str, bucket_file: str):
         """
-        Uploads the file to S3.
-        : param bucket: name bucket-A.
-        : param local_file: local path to the file.
-        : param bucket_file:file name in bucket-E.
+        Uploads an image file to an S3 bucket.
+
+        This method uploads a local image file to a specified S3 bucket, saving 
+        it under the given file name.
+
+        Args:
+            bucket (str): The name of the S3 bucket to upload to.
+            local_file (str): The local file path to the image being uploaded.
+            bucket_file (str): The destination file name in the S3 bucket.
+
+        Returns:
+            str: A success message indicating that the file was uploaded successfully.
         """
         self._ensure_session()
         self.s3.upload_fileobj(local_file, bucket, bucket_file)
@@ -61,10 +104,19 @@ class S3Client:
 
     def download_image(self, bucket: str, bucket_file: str):
         """
-        Downloads a file from S3
-        :param bucket: The name of the bucket
-        :param bucket_file: The name of the file in the bucket
-        :param local_file: The local path to save the file.
+        Downloads an image file from an S3 bucket.
+
+        This method retrieves a file from a specified S3 bucket and returns its contents.
+
+        Args:
+            bucket (str): The name of the S3 bucket to download from.
+            bucket_file (str): The file name in the S3 bucket to download.
+
+        Returns:
+            bytes: The file content as bytes.
+
+        Raises:
+            Exception: If the file cannot be found or there is an issue with the download.
         """
         self._ensure_session()
         return self.s3.get_object(Bucket=bucket, Key=bucket_file)['Body'].read()
