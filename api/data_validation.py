@@ -10,5 +10,5 @@ def validate_data(data):
     """
     df = pd.DataFrame(data)
     if df.empty:
-        return None, jsonify({"error": "No data provided"}), 400
+        return None, jsonify({"error": "No data provided"})
     return df, None
