@@ -45,28 +45,28 @@ async def handle_callback(query, ans):
     )
 
 
-async def handle_cripto_value(action, query, cripto):
+async def handle_cripto_value(time, query, crypto):
     """
     get data 
     """
-    if action == "history":
+    if time == "history":
         await query.edit_message_text(
-            text=f"Вы выбрали {cripto}. Выберите период для анализа:",
-            reply_markup=get_time_buttons(cripto)
+            text=f"Вы выбрали {crypto}. Выберите период для анализа:",
+            reply_markup=get_time_buttons(crypto)
         )
         return
 
-    if action in ["day", "hour"]:
+    if time in ["day", "hour"]:
         try:
             await query.message.edit_reply_markup(reply_markup=None)
             stats = make_request(
-                url=f'{BASE_URL}/{cripto}/analytics/USD/{action}/10')
+                url=f'{BASE_URL}/analytics/{crypto}/{time}/USD/10')
             if not stats or 'error' in stats:
                 raise ValueError("Ошибка при запросе аналитики данных")
 
-            make_request(url=f'{BASE_URL}/{cripto}/plot/USD/{action}/10')
+            make_request(url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')
             data = S3Client().download_image(
-                bucket='bucket-2490b3', bucket_file=f'{cripto}/{action}.png')
+                bucket='bucket-2490b3', bucket_file=f'{crypto}/{time}.png')
             if not data:
                 raise FileNotFoundError("Ошибка при загрузке изображения")
 
@@ -74,30 +74,30 @@ async def handle_cripto_value(action, query, cripto):
             buffer.seek(0)
             await query.message.reply_photo(
                 photo=buffer,
-                filename=f"{cripto}_{action}.png",
+                filename=f"{crypto}_{time}.png",
                 caption="\n".join([
-                    f"Статистика {cripto} за 10 {'дней' if action == 'day' else 'часов'}:",
+                    f"Статистика {crypto} за 10 {'дней' if time == 'day' else 'часов'}:",
                     f"Средняя стоимость: {stats.get('average', 'N/A')}",
                     f"Максимальная стоимость: {stats.get('max', 'N/A')}",
                     f"Медианная стоимость: {stats.get('median', 'N/A')}",
                     f"Минимальная стоимость: {stats.get('min', 'N/A')}"
                 ]),
-                reply_markup=callback_photo(cripto)
+                reply_markup=callback_photo(crypto)
             )
         except ValueError as ve:
             await query.message.reply_text(f"Ошибка в данных: {ve}")
         except FileNotFoundError as fe:
             await query.message.reply_text(f"Ошибка при работе с файлами: {fe}")
 
-    if action == 'latest':
+    if time == 'latest':
         try:
-            latest = make_request(url=f'{BASE_URL}/{cripto}/latest/USD')
+            latest = make_request(url=f'{BASE_URL}/latest/{crypto}/USD')
             if not latest or 'error' in latest:
                 raise ValueError("Ошибка при запросе данных")
 
             await query.edit_message_text(
-                text=f"Текущий курс {cripto}: {latest[cripto]}",
-                reply_markup=callback_photo(cripto)
+                text=f"Текущий курс {crypto}: {latest[crypto]}",
+                reply_markup=callback_photo(crypto)
             )
             return
         except requests.HTTPError as ve:
