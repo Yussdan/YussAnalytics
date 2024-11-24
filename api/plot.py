@@ -15,8 +15,8 @@ matplotlib.use('Agg')
 s3_client = S3Client(aws_access_key_id=s3_key_id, aws_secret_access_key=s3_key_pass)
 app = Flask(__name__)
 
-@app.route("/plot", methods=["POST"])
-def generate_plot():
+@app.route("/plot/<crypto>", methods=["POST"])
+def generate_plot(crypto):
     """
     generate plot
     """
@@ -36,7 +36,7 @@ def generate_plot():
     buffer.seek(0)
     plt.close()
 
-    s3_path = "plots/plot.png"
+    s3_path = f"{crypto}/plots/plot.png"
     resp = s3_client.upload_image(bucket=bucket, local_file=buffer, bucket_file=s3_path)
     return jsonify({'url': resp}), 200
 
