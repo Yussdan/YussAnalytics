@@ -104,7 +104,7 @@ async def button_handler(update: Update, context: CallbackContext):
     }
 
     if data in handlers:
-        await handlers[data](query)
+        await handlers[data](query, data) if data in curr else await handlers[data](query)
     elif "_" in data:
         crypto, time = data.split("_")
         await handle_cripto_value(time, query, crypto)
