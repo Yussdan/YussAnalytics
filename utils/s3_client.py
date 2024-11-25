@@ -94,8 +94,7 @@ class S3Client:
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 return False
-            else:
-                raise
+            raise
 
     def upload_image(self, bucket: str, local_file: str, bucket_file: str):
         """
