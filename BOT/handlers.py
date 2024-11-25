@@ -15,6 +15,7 @@ Dependencies:
     - Requests to external APIs for data and analysis.
     - S3Client for image retrieval from cloud storage.
 """
+from datetime import datetime
 from io import BytesIO
 import requests
 
@@ -107,6 +108,7 @@ async def handle_cripto_value(time, query, crypto):
 
             resp = make_request(url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')
             time_resp = resp['time_resp']
+            time_resp = datetime.strptime(time_resp, '%Y-%m-%d %H:%M:%S.%f')
             date_part = time_resp.strftime('%Y-%m-%d')
             time_part = time_resp.strftime('%H:%M')
             data = S3Client(
