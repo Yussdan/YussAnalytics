@@ -78,7 +78,11 @@ def generate_plot(crypto, time, time_resp):
             * Title: "Price Trend".
         - The plot is saved in PNG format and uploaded to the specified S3 bucket.
     """
-    time_resp = datetime.strptime(time_resp, '%Y-%m-%d %H:%M:%S.%f')
+    print(time_resp + 'in plot.py')
+    try:
+        time_resp = datetime.strptime(time_resp, '%Y-%m-%d %H:%M:%S.%f')
+    except ValueError:
+        time_resp = datetime.strptime(time_resp, '%a, %d %b %Y %H:%M:%S %Z')
     date_part = time_resp.strftime('%Y-%m-%d')
     time_part = time_resp.strftime('%H:%M')
     s3_path = f"{crypto}/{time}/{date_part}/{time_part}/plot.png"
