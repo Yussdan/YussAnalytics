@@ -32,8 +32,8 @@ matplotlib.use('Agg')  # Use non-interactive backend for server-side rendering
 s3_client = S3Client(aws_access_key_id=s3_key_id, aws_secret_access_key=s3_key_pass)
 app = Flask(__name__)
 
-@app.route("/plot/<crypto>/<time>/<datetime>", methods=["POST"])
-def generate_plot(crypto, time, datetim):
+@app.route("/plot/<crypto>/<time>/<time_resp>", methods=["POST"])
+def generate_plot(crypto, time, time_resp):
     """
     Generate and upload a cryptocurrency price trend plot.
 
@@ -79,7 +79,7 @@ def generate_plot(crypto, time, datetim):
         - The plot is saved in PNG format and uploaded to the specified S3 bucket.
     """
     s3_path = f"""{crypto}/{time}/{datetime.strftime(
-        datetim, '%Y-%m-%d')}/{datetime.strftime(datetim, '%H:%M:%S')}/plot.png"""
+        time_resp, '%Y-%m-%d')}/{datetime.strftime(time_resp, '%H:%M:%S')}/plot.png"""
     df, error_response = validate_data(request.json, time)
     if error_response:
         return error_response
