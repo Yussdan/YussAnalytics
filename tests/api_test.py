@@ -30,6 +30,6 @@ def test_get_history():
     assert response.status_code == 200
 
     data = response.json()
-    assert isinstance(data, dict)
+    assert isinstance(data, list[dict])
     assert len(data) > 0
     assert 'error' not in data
