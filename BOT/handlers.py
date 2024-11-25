@@ -108,7 +108,7 @@ async def handle_cripto_value(time, query, crypto):
 
             resp = make_request(url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')
             time_resp = resp['time_resp']
-            time_resp = datetime.strptime(time_resp, '%Y-%m-%d %H:%M:%S.%f')
+            time_resp = datetime.strptime(time_resp, '%a, %d %b %Y %H:%M:%S %Z')
             date_part = time_resp.strftime('%Y-%m-%d')
             time_part = time_resp.strftime('%H:%M')
             data = S3Client(
