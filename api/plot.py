@@ -81,7 +81,7 @@ def generate_plot(crypto, time, time_resp):
     time_resp = datetime.strptime(time_resp, '%Y-%m-%d %H:%M:%S.%f')
     date_part = time_resp.strftime('%Y-%m-%d')
     time_part = time_resp.strftime('%H:%M')
-    s3_path = f"{date_part}/{time_part}/plot.png"
+    s3_path = f"{crypto}/{time}/{date_part}/{time_part}/plot.png"
     df, error_response = validate_data(request.json, time)
     if error_response:
         return error_response
