@@ -79,9 +79,9 @@ def generate_plot(crypto, time, time_resp):
         - The plot is saved in PNG format and uploaded to the specified S3 bucket.
     """
     time_resp = datetime.strptime(time_resp, '%Y-%m-%d %H:%M:%S.%f')
-    date_part = datetime.strftime(time_resp, '%Y-%m-%d')
-    time_part = datetime.strftime(time_resp, '%H:%M:%S')
-    s3_path = f"{crypto}/{time}/{datetime.strftime(date_part)}/{time_part}/plot.png"
+    date_part = time_resp.strftime('%Y-%m-%d')
+    time_part = time_resp.strftime('%H:%M')
+    s3_path = f"{crypto}/{time}/{date_part}/{time_part}/plot.png"
     df, error_response = validate_data(request.json, time)
     if error_response:
         return error_response
