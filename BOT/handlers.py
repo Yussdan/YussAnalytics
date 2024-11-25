@@ -111,11 +111,17 @@ async def handle_cripto_value(time, query, crypto):
             time_resp = datetime.strptime(time_resp, '%a, %d %b %Y %H:%M:%S %Z')
             date_part = time_resp.strftime('%Y-%m-%d')
             time_part = time_resp.strftime('%H:%M')
+            if time=='hour':
+                s3_path = f"{crypto}/{time}/{date_part}/{time_part}/plot.png"
+            else:
+                s3_path = f"{crypto}/{time}/{date_part}/plot.png"
             data = S3Client(
                 aws_access_key_id=s3_key_id,
                 aws_secret_access_key=s3_key_pass
-            ).download_image(bucket=bucket,
-                             bucket_file=f'{crypto}/{time}/{date_part}/{time_part}/plot.png')
+            ).download_image(
+                bucket=bucket,
+                bucket_file=s3_path
+            )
             if not data:
                 raise FileNotFoundError("Ошибка при загрузке изображения")
 
