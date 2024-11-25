@@ -12,6 +12,7 @@ Routes:
     - /analytics/<crypto>/<time>/<currency>/<int:limit>: Perform analytics on historical data.
     - /plot/<crypto>/<time>/<currency>/<int:limit>: Generate plots for cryptocurrency data.
 """
+from datetime import datetime
 from flask import Flask, jsonify
 import requests
 from api.config import (
@@ -110,7 +111,7 @@ def plot(crypto, time, currency, limit):
     if response and response.status_code == 200:
         data = response.json()
         plot_response = requests.post(
-            f"{PLOT_SERVICE_URL}/plot/{crypto}/{time}", json=data, timeout=TTL)
+            f"{PLOT_SERVICE_URL}/plot/{crypto}/{time}/{datetime.now()}", json=data, timeout=TTL)
         return jsonify(plot_response.json()), plot_response.status_code
     return jsonify({"error": "Failed to fetch data or generate plot"}), 500
 

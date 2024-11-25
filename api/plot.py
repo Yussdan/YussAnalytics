@@ -17,7 +17,7 @@ Dependencies:
 Routes:
     - /plot/<crypto>/<time> [POST]: Accepts JSON data to generate a plot and uploads it to S3.
 """
-
+from datetime import datetime
 import io
 import matplotlib.pyplot as plt
 import matplotlib
@@ -32,8 +32,8 @@ matplotlib.use('Agg')  # Use non-interactive backend for server-side rendering
 s3_client = S3Client(aws_access_key_id=s3_key_id, aws_secret_access_key=s3_key_pass)
 app = Flask(__name__)
 
-@app.route("/plot/<crypto>/<time>", methods=["POST"])
-def generate_plot(crypto, time):
+@app.route("/plot/<crypto>/<time>/<datetime>", methods=["POST"])
+def generate_plot(crypto, time, datetim):
     """
     Generate and upload a cryptocurrency price trend plot.
 
@@ -78,11 +78,12 @@ def generate_plot(crypto, time):
             * Title: "Price Trend".
         - The plot is saved in PNG format and uploaded to the specified S3 bucket.
     """
+    s3_path = f"""{crypto}/{time}/{datetime.strftime(
+        datetim, '%Y-%m-%d')}/{datetime.strftime(datetim, '%H:%M:%S')}/plot.png"""
     df, error_response = validate_data(request.json, time)
     if error_response:
         return error_response
 
-    # Generate the plot
     plt.figure(figsize=(12, 6))
     plt.plot(df['time'], df['close'], marker='o')
     plt.xlabel("Time")
@@ -90,14 +91,11 @@ def generate_plot(crypto, time):
     plt.title("Price Trend")
     plt.grid()
 
-    # Save the plot to a buffer
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
     buffer.seek(0)
     plt.close()
 
-    # Upload the plot to S3
-    s3_path = f"{crypto}/plots/plot.png"
     resp = s3_client.upload_image(bucket=bucket, local_file=buffer, bucket_file=s3_path)
     return jsonify({'url': resp}), 200
 
