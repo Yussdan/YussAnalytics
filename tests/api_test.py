@@ -2,8 +2,8 @@
 Тесты для API, включающие проверку получения последних данных о курсе BTC/USD
 и получения исторических данных о курсе BTC за последние 5 дней.
 """
-import requests
 from collections.abc import Iterable
+import requests
 
 def test_get_latest():
     """
@@ -37,4 +37,3 @@ def test_get_history():
 
     for item in data:
         assert isinstance(item, dict)
-
