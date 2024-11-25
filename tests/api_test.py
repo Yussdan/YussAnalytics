@@ -3,6 +3,7 @@
 и получения исторических данных о курсе BTC за последние 5 дней.
 """
 import requests
+from collections.abc import Iterable
 
 def test_get_latest():
     """
@@ -30,6 +31,10 @@ def test_get_history():
     assert response.status_code == 200
 
     data = response.json()
-    assert isinstance(data, list[dict])
     assert len(data) > 0
     assert 'error' not in data
+    assert isinstance(data, Iterable)
+
+    for item in data:
+        assert isinstance(item, dict)
+
