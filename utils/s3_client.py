@@ -13,6 +13,7 @@ Class:
 """
 import logging
 import boto3
+import botocore.exceptions
 
 logger = logging.getLogger('api')
 
@@ -82,6 +83,18 @@ class S3Client:
         """
         if not self.s3:
             self._get_session()
+
+    def check_exist(self, bucket, bucket_file):
+        """
+        Check exist file
+        """
+        try:
+            self.s3.head_object(Bucket=bucket, Key=bucket_file)
+            return True
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == "404":
+                return False
+            raise
 
     def upload_image(self, bucket: str, local_file: str, bucket_file: str):
         """
