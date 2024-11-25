@@ -15,6 +15,7 @@ Dependencies:
     - Requests to external APIs for data and analysis.
     - S3Client for image retrieval from cloud storage.
 """
+from datetime import datetime
 from io import BytesIO
 import requests
 
@@ -105,11 +106,14 @@ async def handle_cripto_value(time, query, crypto):
             if not stats or 'error' in stats:
                 raise ValueError("Ошибка при запросе аналитики данных")
 
-            make_request(url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')
+            resp = make_request(url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')
+            time_resp = resp['time_resp']
+            date_part = time_resp.strftime('%Y-%m-%d')
+            time_part = time_resp.strftime('%H:%M')
             data = S3Client(
                 aws_access_key_id=s3_key_id,
                 aws_secret_access_key=s3_key_pass
-            ).download_image(bucket=bucket, bucket_file=f'{crypto}/plots/plot.png')
+            ).download_image(bucket=bucket, bucket_file=f'{crypto}/{time}/{date_part}/{time_part}/plot.png')
             if not data:
                 raise FileNotFoundError("Ошибка при загрузке изображения")
 

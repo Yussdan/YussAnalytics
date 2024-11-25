@@ -110,9 +110,10 @@ def plot(crypto, time, currency, limit):
     response = fetch_data(url)
     if response and response.status_code == 200:
         data = response.json()
+        time_resp = datetime.now()
         plot_response = requests.post(
-            f"{PLOT_SERVICE_URL}/plot/{crypto}/{time}/{datetime.now()}", json=data, timeout=TTL)
-        return jsonify(plot_response.json()), plot_response.status_code
+            f"{PLOT_SERVICE_URL}/plot/{crypto}/{time}/{time_resp}", json=data, timeout=TTL)
+        return jsonify({'status':'success','time_resp':time_resp}), plot_response.status_code
     return jsonify({"error": "Failed to fetch data or generate plot"}), 500
 
 if __name__ == "__main__":
