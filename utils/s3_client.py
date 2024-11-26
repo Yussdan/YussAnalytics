@@ -89,6 +89,7 @@ class S3Client:
         Check exist file
         """
         try:
+            self._ensure_session()
             self.s3.head_object(Bucket=bucket, Key=bucket_file)
             return True
         except botocore.exceptions.ClientError as e:
