@@ -83,9 +83,8 @@ def generate_plot(crypto, time, time_resp):
     except ValueError:
         time_resp = datetime.strptime(time_resp, '%a, %d %b %Y %H:%M:%S %Z')
     date_part = time_resp.strftime('%Y-%m-%d')
-    time_part = time_resp.strftime('%H')
     if time=='hour':
-        s3_path = f"{crypto}/{time}/{date_part}/{time_part}/plot.png"
+        s3_path = f"{crypto}/{time}/{date_part}/{time_resp.strftime('%H')}/plot.png"
     else:
         s3_path = f"{crypto}/{time}/{date_part}/plot.png"
     print(s3_path)

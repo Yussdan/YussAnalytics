@@ -106,17 +106,18 @@ async def handle_cripto_value(time, query, crypto):
             if not stats or 'error' in stats:
                 raise ValueError("Ошибка при запросе аналитики данных")
 
-            resp = make_request(url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')
-            time_resp = resp['time_resp']
-            time_resp = datetime.strptime(time_resp, '%a, %d %b %Y %H:%M:%S %Z')
+            time_resp = datetime.strptime(
+                make_request(
+                    url=f'{BASE_URL}/plot/{crypto}/{time}/USD/10')['time_resp'], 
+                '%a, %d %b %Y %H:%M:%S %Z'
+            )
             date_part = time_resp.strftime('%Y-%m-%d')
-            time_part = time_resp.strftime('%H')
-            if time=='hour':
-                s3_path = f"{crypto}/{time}/{date_part}/{time_part}/plot.png"
-                print(s3_path)
-            else:
-                s3_path = f"{crypto}/{time}/{date_part}/plot.png"
-                print(s3_path)
+            s3_path = (
+            f"{crypto}/{time}/{date_part}/{time_resp.strftime('%H')}/plot.png" 
+                if time == 'hour'
+            else 
+                f"{crypto}/{time}/{date_part}/plot.png"
+            )
             data = S3Client(
                 aws_access_key_id=s3_key_id,
                 aws_secret_access_key=s3_key_pass
