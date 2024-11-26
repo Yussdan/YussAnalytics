@@ -33,8 +33,8 @@ def get_time_buttons(cripto):
         [
             [InlineKeyboardButton("10 дней", callback_data=f'{cripto}_day')],
             [InlineKeyboardButton("10 часов", callback_data=f'{cripto}_hour')],
-            [InlineKeyboardButton("Назад", callback_data='back')],
-            [InlineKeyboardButton("Главное меню", callback_data='start')],
+            [InlineKeyboardButton("Назад", callback_data='return')],
+            [InlineKeyboardButton("Главное меню", callback_data='menu')],
         ]
     )
 
@@ -48,11 +48,18 @@ def get_main_menu_buttons():
         for each cryptocurrency in the 'curr' list.
     """
     return InlineKeyboardMarkup([
+        [InlineKeyboardButton("Аналитика", callback_data='analytics')],
+        [InlineKeyboardButton("Рассылка", callback_data='mailing')],
+        [InlineKeyboardButton("Рассылка", callback_data='news')],
+        [InlineKeyboardButton("Помощь", callback_data='help')],
+    ])
+
+def get_curr_buttons():
+    return InlineKeyboardMarkup([
         [InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]
     ])
 
-
-def get_action_buttons(cripto):
+def get_action_buttons(crypto):
     """
     Generates an inline keyboard with action buttons for a selected cryptocurrency.
 
@@ -66,15 +73,15 @@ def get_action_buttons(cripto):
     """
     return InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("Показать текущий курс", callback_data=f'{cripto}_latest')],
-            [InlineKeyboardButton("Статистика", callback_data=f'{cripto}_history')],
-            [InlineKeyboardButton("Назад", callback_data='back')],
+            [InlineKeyboardButton("Показать текущий курс", callback_data=f'{crypto}_latest')],
+            [InlineKeyboardButton("Статистика", callback_data=f'{crypto}_history')],
+            [InlineKeyboardButton("Назад", callback_data='return')],
             [InlineKeyboardButton("Главное меню", callback_data='start')],
         ]
     )
 
 
-def callback_photo(cripto):
+def callback_crypto(crypto):
     """
     Generates an inline keyboard with buttons for navigation after displaying a photo or data.
 
@@ -86,7 +93,7 @@ def callback_photo(cripto):
     """
     return InlineKeyboardMarkup(
         [
-            [InlineKeyboardButton("Назад", callback_data=f'{cripto}_callback')],
+            [InlineKeyboardButton("Назад", callback_data=f'{crypto}_callback')],
             [InlineKeyboardButton("Главное меню", callback_data='start')],
         ]
     )

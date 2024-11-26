@@ -25,7 +25,8 @@ from BOT.keyboards import (
     get_main_menu_buttons,
     get_time_buttons,
     get_action_buttons,
-    callback_photo
+    callback_crypto,
+    get_curr_buttons
 )
 from BOT.config import BASE_URL
 from api.config import s3_key_id, s3_key_pass, bucket
@@ -140,7 +141,7 @@ async def handle_cripto_value(time, query, crypto):
                     f"Медианная стоимость: {stats.get('median', 'N/A')}",
                     f"Минимальная стоимость: {stats.get('min', 'N/A')}"
                 ]),
-                reply_markup=callback_photo(crypto)
+                reply_markup=callback_crypto(crypto)
             )
         except ValueError as ve:
             await query.message.reply_text(f"Ошибка в данных: {ve}")
@@ -155,7 +156,7 @@ async def handle_cripto_value(time, query, crypto):
 
             await query.edit_message_text(
                 text=f"Текущий курс {crypto}: {latest[crypto]}",
-                reply_markup=callback_photo(crypto)
+                reply_markup=callback_crypto(crypto)
             )
             return
         except requests.HTTPError as ve:
@@ -174,3 +175,17 @@ async def handle_cripto_selection(query, ans):
         text=f"Вы выбрали {ans}. Выберите действие:",
         reply_markup=get_action_buttons(ans)
     )
+
+async def handle_new(query):
+    """Handles requests for news (to be implemented)."""
+    await query.message.reply_text("Эта функция пока в разработке.")
+
+
+async def handle_analytics(query):
+    """Handles requests for analytics (to be implemented)."""
+    await query.message.reply_text("Эта функция пока в разработке.", reply_markup=get_curr_buttons())
+
+
+async def handle_mailing(query):
+    """Handles requests for mailing setup (to be implemented)."""
+    await query.message.reply_text("Эта функция пока в разработке.")
