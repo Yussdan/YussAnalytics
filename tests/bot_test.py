@@ -48,14 +48,14 @@ async def test_start_command():
         await start(mock_update, mock_context)
 
         mock_update.callback_query.edit_message_text.assert_called_once_with(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из опций.",
             reply_markup="mock_markup"
         )
 
         mock_update.callback_query = None
         await start(mock_update, mock_context)
         mock_update.message.reply_text.assert_called_once_with(
-            "Привет! Я бот для аналитики криптовалют. Выберите одну из криптовалют",
+            "Привет! Я бот для аналитики криптовалют. Выберите одну из опций.",
             reply_markup="mock_markup"
         )
 
