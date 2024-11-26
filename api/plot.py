@@ -87,7 +87,8 @@ def generate_plot(crypto, time, time_resp):
         s3_path = f"{crypto}/{time}/{date_part}/{time_resp.strftime('%H')}/plot.png"
     else:
         s3_path = f"{crypto}/{time}/{date_part}/plot.png"
-    print(s3_path)
+    if s3_client.check_exist(bucket=bucket, bucket_file=s3_path):
+        return jsonify({'url': resp}), 200
     df, error_response = validate_data(request.json, time)
     if error_response:
         return error_response
