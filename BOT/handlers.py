@@ -183,7 +183,9 @@ async def handle_new(query):
 
 async def handle_analytics(query):
     """Handles requests for analytics (to be implemented)."""
-    await query.message.reply_text("Эта функция пока в разработке.", reply_markup=get_curr_buttons())
+    await query.message.reply_text(
+        "Эта функция пока в разработке.", 
+        reply_markup=get_curr_buttons())
 
 
 async def handle_mailing(query):

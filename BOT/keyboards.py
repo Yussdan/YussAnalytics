@@ -55,6 +55,9 @@ def get_main_menu_buttons():
     ])
 
 def get_curr_buttons():
+    """
+    something
+    """
     return InlineKeyboardMarkup([
         [InlineKeyboardButton(cur, callback_data=f'{cur}') for cur in curr]
     ])
