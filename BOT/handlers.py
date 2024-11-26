@@ -110,7 +110,7 @@ async def handle_cripto_value(time, query, crypto):
             time_resp = resp['time_resp']
             time_resp = datetime.strptime(time_resp, '%a, %d %b %Y %H:%M:%S %Z')
             date_part = time_resp.strftime('%Y-%m-%d')
-            time_part = time_resp.strftime('%H:%M')
+            time_part = time_resp.strftime('%H')
             if time=='hour':
                 s3_path = f"{crypto}/{time}/{date_part}/{time_part}/plot.png"
                 print(s3_path)
