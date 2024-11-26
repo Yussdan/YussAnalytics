@@ -115,6 +115,7 @@ async def handle_cripto_value(time, query, crypto):
                 s3_path = f"{crypto}/{time}/{date_part}/{time_part}/plot.png"
             else:
                 s3_path = f"{crypto}/{time}/{date_part}/plot.png"
+            print(s3_path)
             data = S3Client(
                 aws_access_key_id=s3_key_id,
                 aws_secret_access_key=s3_key_pass
